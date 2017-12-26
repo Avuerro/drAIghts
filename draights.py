@@ -1,5 +1,7 @@
+import argparse
 import configparser
 import math
+import os
 from ast import literal_eval
 from copy import deepcopy
 
@@ -7,25 +9,9 @@ import pygame
 
 import board
 import graphics
+import humanplayer
 import player
 from draughtsrules import DraughtsRules
-
-
-class ItemParser:
-    def parse_value(self, value):
-        try:
-            return literal_eval(value)
-        except SyntaxError or ValueError:
-            return value
-
-    def read(self, item_list):
-        items = {}
-
-        for item in item_list:
-            (key, value) = item
-            items[key] = self.parse_value(value.replace(' ', ''))
-
-        return items
 
 
 class Display:
@@ -98,17 +84,21 @@ class Display:
 class Game:
     MOVE_TIME = 15
 
-    def __init__(self, gamesettings):
-        self.display = Display(gamesettings['colors'])
+    def __init__(self,
+                 players=None,
+                 disp_graphics=True,
+                 switch_sides=False
+                 ):
+        self.display = Display(colors)
 
-        self.display_screen = gamesettings['game']['display_screen']
-        self.switch_sides = gamesettings['game']['switch_sides']
+        self.display_screen = disp_graphics
+        self.switch_sides = switch_sides
 
         self.current_state = board.GameState()
         self.history = board.History()
 
         self.players = [None, None]
-        eventmanager = player.EventManager(self)
+        eventmanager = humanplayer.EventManager(self)
 
         board_size = Display.BOARD_SIZE
         square_size = min(board_size) / 10
@@ -150,10 +140,14 @@ class Game:
                 9 * buttonsize_with_border[1] + buttonsize[1] + button_center_offset
             )
         )
+
         for i in range(2):
             # todo: add if for non-human players
-            self.players[i] = player.HumanPlayer(i, eventmanager, button_rects, self.switch_sides,
-                                                 board_size, square_size)
+            if players[i].__name__ == 'HumanPlayer':
+                self.players[i] = players[i](i, eventmanager, button_rects, self.switch_sides,
+                                             board_size, square_size)
+            else:
+                self.players[i] = players[i](i)
 
         self.scrollindex = 0
         self.captured_piece_nums = (0, 0)
@@ -329,15 +323,132 @@ class Game:
                 self.display.render_to_screen()
 
 
-def main():
-    # todo: add command line OptionParser
-    config = configparser.ConfigParser()
-    config.read(['draights.cfg'])
-    settings = {}
-    for section in config.sections():
-        settings[section] = ItemParser().read(config.items(section))
+def parse_colors(args):
+    colors = {}
 
-    game = Game(settings)
+    for color in args:
+        (key, value) = color
+        try:
+            colors[key] = literal_eval(value)
+        except SyntaxError or ValueError:
+            return None
+
+    return colors
+
+
+def load_player(p, nographics):
+    python_path_str = os.path.expandvars("$PYTHONPATH")
+    if python_path_str.find(';') == -1:
+        python_path_dirs = python_path_str.split(':')
+    else:
+        python_path_dirs = python_path_str.split(';')
+    python_path_dirs.append('.')
+
+    for module_dir in python_path_dirs:
+        if not os.path.isdir(module_dir):
+            continue
+
+        modulenames = (file for file in os.listdir(module_dir) if
+                       file.endswith('player.py') and not file.startswith('.') and not file.startswith('_'))
+        for modulename in modulenames:
+            try:
+                module = __import__(modulename[:-3])
+            except ImportError:
+                continue
+            if p in dir(module):
+                if nographics and modulename == 'humanplayer.py':
+                    raise Exception("Cannot use HumanPlayer without display")
+
+                return getattr(module, p)
+
+    raise Exception("The player {0} is not specified in any *player.py".format(p))
+
+
+# todo: add parse_command_args function
+def parse_command_args(command_args):
+    """
+    command args:
+    players, disp_graphics, switch_sides
+    """
+
+    args = {
+        'disp_graphics': command_args.disp_graphics,
+        'switch_sides': command_args.switch_sides
+    }
+
+    # players
+    args['players'] = [load_player(p, not command_args.disp_graphics) for p in command_args.players]
+
+    return args
+
+
+colors = {
+    'background': (128, 128, 128, 255),
+    'font': (0, 0, 0, 255),
+    'square_light': (255, 238, 187, 255),
+    'square_dark': (85, 136, 34, 255),
+    'highlight': ((255, 0, 0, 96), (0, 0, 255, 96)),
+    'piece_outline': (0, 0, 0, 255),
+    'piece_light': (255, 255, 255, 255),
+    'piece_dark': (64, 64, 64, 255),
+    'king': (255, 0, 0, 255),
+    'panelbackground': (128, 128, 128, 255),
+    'buttoncolor': (192, 192, 192, 255),
+    'buttonbordercolor': (64, 64, 64, 255),
+    'button_highlight': (255, 128, 0, 128),
+    'textcolor': (0, 0, 0, 255),
+    'movelist_background': (255, 255, 255, 255)
+}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Runs a draughts match.")
+
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        dest='disp_graphics',
+        action='store_false',
+        help="Play game without graphics",
+        default=True
+    )
+    parser.add_argument(
+        '-s',
+        '--switchsides',
+        dest='switch_sides',
+        action='store_true',
+        help="Switch sides as current player changes.",
+        default=False
+    )
+    parser.add_argument(
+        '-p',
+        '--players',
+        dest='players',
+        type=str,
+        metavar='PLAYER',
+        help="The player objects to be used.",
+        nargs=2,
+        default=['HumanPlayer', 'HumanPlayer']
+    )
+
+    command_args = parser.parse_args()
+    args = parse_command_args(command_args)
+
+    color_parser = configparser.ConfigParser()
+    color_parser.read(['colors.cfg'])
+    try:
+        clrs = parse_colors(color_parser.items('colors'))
+
+        if clrs:
+            global colors
+
+            for key, value in clrs.items():
+                if key in colors:
+                    colors[key] = value
+    except configparser.NoSectionError:
+        pass
+
+    game = Game(**args)
     game.run()
 
     # todo: add ability to disable graphics
