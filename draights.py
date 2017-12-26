@@ -89,10 +89,12 @@ class Game:
                  disp_graphics=True,
                  switch_sides=False
                  ):
-        self.display = Display(colors)
 
         self.display_screen = disp_graphics
         self.switch_sides = switch_sides
+
+        if self.display_screen:
+            self.display = Display(colors)
 
         self.current_state = board.GameState()
         self.history = board.History()
@@ -107,39 +109,32 @@ class Game:
         button_center_offset = max(buttonsize_with_border) / 40
         buttonsize = (buttonsize_with_border[0] - 2 * button_center_offset,
                       buttonsize_with_border[1] - 2 * button_center_offset)
-        button_rects = []
-        button_rects.append(
+        button_rects = [
             (
                 board_size[0] + buttonsize[0] - 3 * button_center_offset,
                 button_center_offset,
                 board_size[0] + buttonsize[0] + button_center_offset,
                 4 * button_center_offset + 1
-            )
-        )
-        button_rects.append(
+            ),
             (
                 board_size[0] + buttonsize[0] - 3 * button_center_offset,
                 7 * buttonsize_with_border[1] - 4 * button_center_offset,
                 board_size[0] + buttonsize[0] + button_center_offset,
                 7 * buttonsize_with_border[1] - button_center_offset
-            )
-        )
-        button_rects.append(
+            ),
             (
                 board_size[0] + button_center_offset,
                 8 * buttonsize_with_border[1] + button_center_offset,
                 board_size[0] + button_center_offset + buttonsize[0],
                 8 * buttonsize_with_border[1] + buttonsize[1] + button_center_offset
-            )
-        )
-        button_rects.append(
+            ),
             (
                 board_size[0] + button_center_offset,
                 9 * buttonsize_with_border[1] + button_center_offset,
                 board_size[0] + button_center_offset + buttonsize[0],
                 9 * buttonsize_with_border[1] + buttonsize[1] + button_center_offset
             )
-        )
+        ]
 
         for i in range(2):
             # todo: add if for non-human players
@@ -271,9 +266,10 @@ class Game:
             else:
                 self.scrollindex = max(0, self.current_state.turn - 12)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.keepgoing = False
+            if self.display_screen:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.keepgoing = False
 
     def notify(self, event):
         if event[0] == 'scroll':
@@ -450,8 +446,6 @@ def main():
 
     game = Game(**args)
     game.run()
-
-    # todo: add ability to disable graphics
 
 
 if __name__ == "__main__":
