@@ -120,7 +120,7 @@ class BoardGrid:
         board_index = self.get_board_index(pos)
 
         if self._pieces[board_index]:
-            return self._pieces[board_index + 1]
+            return self._pieces[board_index + 2]
 
         return -1
 
