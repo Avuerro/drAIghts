@@ -11,9 +11,6 @@ class EventManager:
     def scroll(self, direction):
         self._game.notify(('scroll', direction))
 
-    def send_tie_request(self):
-        self._game.notify(('tie',))
-
     def redraw_sidepanel(self):
         self._game.notify(('redraw_sidepanel',))
 
@@ -38,13 +35,6 @@ class HumanPlayer(player.Player):
         self.board_size = board_size
         self.square_size = square_size
 
-        self.mousebutton_pressed = False
-        self.button_selected = False
-
-        self.highlighted_moves = None
-        self.player_pieces = []
-        self.all_possible_moves = None
-
     def get_board_pos(self, mouse_pos, player_id, switch_sides):
         if (self.board_size[0] - 10 * self.square_size) <= mouse_pos[0] <= self.board_size[0] and 0 <= \
                 mouse_pos[1] <= self.board_size[1]:
@@ -63,21 +53,22 @@ class HumanPlayer(player.Player):
         return None
 
     def get_action(self, currentstate, history):
-        self.mousebutton_pressed = False
-        self.button_selected = False
-        self.highlighted_moves = None
+        mousebutton_pressed = False
+        button_selected = False
 
-        self.player_pieces = currentstate.board.get_pieces(self.player_id)
-        self.all_possible_moves = DraughtsRules.get_all_possible_moves(currentstate, self.player_id)
+        player_pieces = currentstate.board.get_pieces(self.player_id)
+        all_possible_moves = DraughtsRules.get_all_possible_moves(currentstate, self.player_id)
+        highlighted_moves = None
 
+        tie_request = False
         while True:
             mousepos = pygame.mouse.get_pos()
 
-            if self.mousebutton_pressed and not any(pygame.mouse.get_pressed()):
-                self.mousebutton_pressed = False
-            if not self.mousebutton_pressed and any(pygame.mouse.get_pressed()):
-                self.button_selected = False
-                self.mousebutton_pressed = True
+            if mousebutton_pressed and not any(pygame.mouse.get_pressed()):
+                mousebutton_pressed = False
+            if not mousebutton_pressed and any(pygame.mouse.get_pressed()):
+                button_selected = False
+                mousebutton_pressed = True
                 for rect_index in range(len(self.button_rects)):
                     rect = self.button_rects[rect_index]
                     if rect[0] < mousepos[0] < rect[2] and rect[1] < mousepos[1] < rect[3]:
@@ -89,18 +80,18 @@ class HumanPlayer(player.Player):
                             if currentstate.tie_request == (not self.player_id):
                                 return player.ACTION_TIE
                             else:
-                                self.manager.send_tie_request()
+                                tie_request = True
                         elif rect_index == 3:
                             return player.ACTION_RESIGN
-            elif self.button_selected and not any(
+            elif button_selected and not any(
                     rect[0] < mousepos[0] < rect[2] and rect[1] < mousepos[1] < rect[3] for rect in self.button_rects):
-                self.button_selected = False
+                button_selected = False
                 self.manager.redraw_sidepanel()
             else:
                 for rect in self.button_rects:
-                    if rect[0] < mousepos[0] < rect[2] and rect[1] < mousepos[1] < rect[3] and not self.button_selected:
+                    if rect[0] < mousepos[0] < rect[2] and rect[1] < mousepos[1] < rect[3] and not button_selected:
                         self.manager.highlight_button(rect)
-                        self.button_selected = True
+                        button_selected = True
                         break
 
             for event in pygame.event.get():
@@ -110,16 +101,16 @@ class HumanPlayer(player.Player):
                     pos = self.get_board_pos(event.pos, self.player_id, self.switch_sides)
 
                     if pos:
-                        if not self.highlighted_moves:
-                            if any(pos == piece.pos for piece in self.player_pieces):
-                                piece = next(piece for piece in self.player_pieces if pos == piece.pos)
-                                if any(piece == moves[0] for moves in self.all_possible_moves):
-                                    self.highlighted_moves = self.all_possible_moves[next(
-                                        index for index in range(len(self.all_possible_moves)) if
-                                        self.all_possible_moves[index][0] == piece)]
+                        if not highlighted_moves:
+                            if any(pos == piece.pos for piece in player_pieces):
+                                piece = next(piece for piece in player_pieces if pos == piece.pos)
+                                if any(piece == moves[0] for moves in all_possible_moves):
+                                    highlighted_moves = all_possible_moves[next(
+                                        index for index in range(len(all_possible_moves)) if
+                                        all_possible_moves[index][0] == piece)]
 
                                     spaces_to_highlight = [set(), set()]
-                                    for spaces in self.highlighted_moves[1]:
+                                    for spaces in highlighted_moves[1]:
                                         spaces_to_highlight[0].update(spaces[:-1])
                                         spaces_to_highlight[1].add(spaces[-1])
 
@@ -128,13 +119,10 @@ class HumanPlayer(player.Player):
 
                                     self.manager.highlight_spaces(spaces_to_highlight)
                         else:
-                            for move in self.highlighted_moves[1]:
+                            for move in highlighted_moves[1]:
                                 if pos == move[-1]:
-                                    return self.highlighted_moves[0], move
+                                    return highlighted_moves[0], move
 
-                            if not any(pos == piece.pos for piece in self.player_pieces):
-                                self.highlighted_moves = None
+                            if not any(pos == piece.pos for piece in player_pieces):
+                                highlighted_moves = None
                                 self.manager.redraw_board()
-
-    def end_turn(self, current_state):
-        self.highlighted_moves = None
