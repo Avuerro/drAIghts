@@ -138,10 +138,3 @@ class HumanPlayer(player.Player):
 
     def end_turn(self, current_state):
         self.highlighted_moves = None
-
-    def end_game(self, history, winner):
-        # todo: save pdn file of match
-        if winner == self.player_id:
-            print('winner: {0}'.format(int(winner)))
-        else:
-            print('loser: {0}'.format(int(not winner)))
