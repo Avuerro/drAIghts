@@ -137,7 +137,6 @@ class Game:
         ]
 
         for i in range(2):
-            # todo: add if for non-human players
             if players[i].__name__ == 'HumanPlayer':
                 self.players[i] = players[i](i, eventmanager, button_rects, self.switch_sides,
                                              board_size, square_size)
@@ -360,7 +359,6 @@ def load_player(p, nographics):
     raise Exception("The player {0} is not specified in any *player.py".format(p))
 
 
-# todo: add parse_command_args function
 def parse_command_args(command_args):
     """
     command args:
