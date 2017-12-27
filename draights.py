@@ -367,7 +367,7 @@ class Game:
                     if event.type == pygame.QUIT:
                         keepgoing = False
 
-        return self.history
+        return self.history, self.winner
 
     def notify(self, event):
         if event[0] == 'scroll':
