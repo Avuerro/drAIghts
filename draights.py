@@ -170,6 +170,7 @@ class Game:
         player_pieces = self.current_state.board.get_pieces(self.current_state.current_player)
         player_pieces.remove(piece)
         opponent_pieces = self.current_state.board.get_pieces(not self.current_state.current_player)
+        capt_piece_index = 0
 
         clock = pygame.time.Clock()
         for index in range(len(move)):
@@ -197,8 +198,8 @@ class Game:
                 clock.tick(60)
 
             if captured_pieces:
-                opponent_pieces.remove(captured_pieces[0])
-                del captured_pieces[0]
+                opponent_pieces.remove(captured_pieces[capt_piece_index])
+                capt_piece_index += 1
 
     def run(self):
         self.keepgoing = True
@@ -264,6 +265,7 @@ class Game:
             elif self.current_state.is_draw(self.history):
                 # todo: end game and announce draw
                 print("Draw")
+                break
                 pass
 
             # switch players and set history panel to last move

@@ -47,21 +47,19 @@ class BoardGrid:
                     "100100100100100"
                     "100100100100100"
                 )
-                # (
-                #     "110000000000000"
-                #     "000000101101101"
-                #     "101101000000000"
-                #     "000000000101101"
-                #     "101101101000000"
-                #     "000000000000101"
-                #     "101101101101000"
-                #     "000000000000000"
-                #     "101101101101000"
-                #     "000000000000000"
-                # )
             )
         else:
             self._pieces = pieces
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            if self._pieces == other._pieces:
+                return True
+
+        return False
+
+    def __ne__(self, other):
+        return not self == other
 
     def get_board_index(self, pos):
         return (10 * pos[1] + pos[0]) // 2 * 3
@@ -76,6 +74,13 @@ class BoardGrid:
                     pieces.append(Piece((2 * x + (1 <= square_offset <= 5), y), self._pieces[board_index + 1]))
 
         return pieces
+
+    def get_piece_by_pos(self, pos):
+        board_index = 15 * pos[1] + 3 * pos[0]
+
+        if self._pieces[board_index]:
+            square_offset = (board_index // 3 + 1) % 10
+            return Piece((2 * pos[0] + (1 <= square_offset <= 5), pos[1]), self._pieces[board_index + 1])
 
     def remove_piece(self, pos):
         board_index = self.get_board_index(pos)
@@ -116,7 +121,15 @@ class BoardGrid:
 
         return True
 
-    def get_player_from_piece(self, pos):
+    def get_piece_status(self, pos):
+        board_index = self.get_board_index(pos)
+
+        if self._pieces[board_index]:
+            return self._pieces[board_index + 1]
+
+        return -1
+
+    def get_piece_player(self, pos):
         board_index = self.get_board_index(pos)
 
         if self._pieces[board_index]:
@@ -184,18 +197,18 @@ class GameState:
 
         newstate.board.move_piece(piece.pos, move[-1])
 
-        if move[-1][1] == (0, 9)[newstate.board.get_player_from_piece(move[-1])]:
+        if move[-1][1] == (0, 9)[newstate.board.get_piece_player(move[-1])]:
             newstate.board.crown_piece(move[-1])
 
         return newstate
 
 
 class History:
-    def __init__(self):
+    def __init__(self, initial_state):
         self.movelist = []
-        self.gamestates = []
+        self.gamestates = [(initial_state, 1)]
         self.onevs2_moves = 0  # draw if 10
-        self.onevs3_moves = 0  # draw if 32
+        self.onevs3_moves = 30  # draw if 32
         self.consecutive_moves_with_kings = 0  # draw if 50
 
     def get_moves_in_pairs(self):
@@ -225,10 +238,30 @@ class History:
 
         return str_movelist
 
-    def add_gamestate(self, gamestate):
+    def add_move(self, new_gamestate, move, old_gamestate):
+        self.movelist.append(move)
+
+        pieces = [old_gamestate.board.get_pieces(0), old_gamestate.board.get_pieces(1)]
+
+        for player_index in range(2):
+            opponent_index = not player_index
+
+            if len(pieces[player_index]) == 2 and len(pieces[opponent_index]) == 1 and any(
+                    piece.is_king for piece in pieces[player_index]) and pieces[opponent_index][0].is_king:
+                self.onevs2_moves += 1
+            elif len(pieces[player_index]) == 3 and len(pieces[opponent_index]) == 1 and any(
+                    piece.is_king for piece in pieces[player_index]) and pieces[opponent_index][0].is_king:
+                self.onevs3_moves += 1
+
+        if old_gamestate.board.get_piece_status(move[0]) and not move[2]:
+            self.consecutive_moves_with_kings += 1
+        else:
+            self.consecutive_moves_with_kings = 0
+
         num_gamestate = 1
         for state in self.gamestates:
-            if gamestate.current_player == state[0].current_player and gamestate.pieces == state[0].pieces:
+            if new_gamestate.current_player == state[0].current_player and new_gamestate.board \
+                    == state[0].board:
                 num_gamestate += 1
 
-        self.gamestates.append((gamestate, num_gamestate))
+        self.gamestates.append((new_gamestate, num_gamestate))
