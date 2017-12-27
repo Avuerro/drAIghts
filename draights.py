@@ -359,15 +359,10 @@ def load_player(p, nographics):
 
 
 def parse_command_args(command_args):
-    """
-    command args:
-    players, disp_graphics, switch_sides
-    """
-
-    args = {
-        'disp_graphics': command_args.disp_graphics,
-        'switch_sides': command_args.switch_sides
-    }
+    args = dict(
+        disp_graphics=command_args.disp_graphics,
+        switch_sides=command_args.switch_sides
+    )
 
     # players
     args['players'] = [load_player(p, not command_args.disp_graphics) for p in command_args.players]
