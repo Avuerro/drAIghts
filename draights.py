@@ -305,66 +305,67 @@ class Game:
         for p in self.players:
             p.end_game(self.history, self.winner)
 
-        self.display.draw_sidepanel_background()
-        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
-        self.display.render_to_screen()
+        if self.display_screen:
+            self.display.draw_sidepanel_background()
+            self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+            self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+            self.display.render_to_screen()
 
-        keepgoing = True
-        button_selected = False
-        mousebutton_pressed = False
-        while keepgoing:
-            mousepos = pygame.mouse.get_pos()
+            keepgoing = True
+            button_selected = False
+            mousebutton_pressed = False
+            while keepgoing:
+                mousepos = pygame.mouse.get_pos()
 
-            selectedbutton = -1
-            for index in range(len(self.button_rects)):
-                if self.button_rects[index][0] < mousepos[0] < self.button_rects[index][2] and \
-                        self.button_rects[index][1] < mousepos[1] < self.button_rects[index][3]:
-                    selectedbutton = index
-                    break
+                selectedbutton = -1
+                for index in range(len(self.button_rects)):
+                    if self.button_rects[index][0] < mousepos[0] < self.button_rects[index][2] and \
+                            self.button_rects[index][1] < mousepos[1] < self.button_rects[index][3]:
+                        selectedbutton = index
+                        break
 
-            if not any(pygame.mouse.get_pressed()):
-                mousebutton_pressed = False
+                if not any(pygame.mouse.get_pressed()):
+                    mousebutton_pressed = False
 
-            if selectedbutton >= 0:
-                if not button_selected:
-                    self.display.draw_sidepanel_background()
-                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                    self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
-                    self.display.draw_button_overlay(self.button_rects[index])
-                    self.display.render_to_screen()
+                if selectedbutton >= 0:
+                    if not button_selected:
+                        self.display.draw_sidepanel_background()
+                        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+                        self.display.draw_button_overlay(self.button_rects[index])
+                        self.display.render_to_screen()
 
-                    button_selected = True
+                        button_selected = True
 
-                if not mousebutton_pressed and any(pygame.mouse.get_pressed()):
-                    mousebutton_pressed = True
-                    if 0 <= index <= 2:
-                        if index == 0:
-                            self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex - 1))
-                            if self.display_screen:
-                                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                                self.display.draw_button_overlay(self.button_rects[index])
-                                self.display.render_to_screen()
-                        elif index == 1:
-                            self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex + 1))
-                            if self.display_screen:
-                                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                                self.display.draw_button_overlay(self.button_rects[index])
-                                self.display.render_to_screen()
-                        else:
-                            keepgoing = False
-            else:
-                if button_selected:
-                    self.display.draw_sidepanel_background()
-                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                    self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
-                    self.display.render_to_screen()
+                    if not mousebutton_pressed and any(pygame.mouse.get_pressed()):
+                        mousebutton_pressed = True
+                        if 0 <= index <= 2:
+                            if index == 0:
+                                self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex - 1))
+                                if self.display_screen:
+                                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                                    self.display.draw_button_overlay(self.button_rects[index])
+                                    self.display.render_to_screen()
+                            elif index == 1:
+                                self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex + 1))
+                                if self.display_screen:
+                                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                                    self.display.draw_button_overlay(self.button_rects[index])
+                                    self.display.render_to_screen()
+                            else:
+                                keepgoing = False
+                else:
+                    if button_selected:
+                        self.display.draw_sidepanel_background()
+                        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+                        self.display.render_to_screen()
 
-                    button_selected = False
+                        button_selected = False
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    keepgoing = False
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        keepgoing = False
 
         return self.history
 
