@@ -26,8 +26,11 @@ class EventManager:
 
 
 class HumanPlayer(player.Player):
-    def __init__(self, player_id, manager, button_rects, switch_sides, board_size, square_size):
-        super(HumanPlayer, self).__init__(player_id)
+    def __init__(self, player_id, manager, button_rects, switch_sides, board_size, square_size, name=""):
+        if name == "":
+            name = "Human"
+
+        super(HumanPlayer, self).__init__(player_id, name)
 
         self.manager = manager
 

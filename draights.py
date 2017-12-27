@@ -76,6 +76,19 @@ class Display:
         surface = self.panel_graphics.get_highlight_button_surface(button_rect)
         self.background.blit(surface, [button_rect[0], button_rect[1], surface.get_width(), surface.get_height()])
 
+    def announce_winner(self, is_winner, winner_name="", winner_id=0):
+        surface = self.panel_graphics.get_continuebutton_surface()
+        self.background.blit(surface, [Display.BOARD_SIZE[0], 0, surface.get_width(), surface.get_height()])
+
+        if is_winner:
+            win_surface = self.panel_graphics.get_win_message_surface(winner_name, winner_id)
+            self.background.blit(win_surface,
+                                 [Display.BOARD_SIZE[0], 0, win_surface.get_width(), win_surface.get_height()])
+        else:
+            tie_surface = self.panel_graphics.get_tie_message_surface()
+            self.background.blit(tie_surface,
+                                 [Display.BOARD_SIZE[0], 0, tie_surface.get_width(), tie_surface.get_height()])
+
     def render_to_screen(self):
         self.window.blit(self.background, (0, 0))
         pygame.display.update()
@@ -90,7 +103,7 @@ class Game:
     def __init__(self,
                  players=None,
                  disp_graphics=True,
-                 switch_sides=False
+                 switch_sides=False,
                  ):
 
         self.display_screen = disp_graphics
@@ -103,6 +116,7 @@ class Game:
         self.history = board.History(self.current_state)
 
         self.players = [None, None]
+        self.winner = -1
         eventmanager = humanplayer.EventManager(self)
 
         board_size = Display.BOARD_SIZE
@@ -139,12 +153,24 @@ class Game:
             )
         ]
 
+        self.button_rects = [
+            button_rects[0],
+            button_rects[1],
+            (
+                board_size[0] + button_center_offset,
+                8 * buttonsize_with_border[1] + button_center_offset,
+                board_size[0] + button_center_offset + buttonsize[0],
+                8 * buttonsize_with_border[1] + button_center_offset + 2 * (
+                        buttonsize_with_border[1] - button_center_offset)
+            )
+        ]
+
         for i in range(2):
-            if players[i].__name__ == 'HumanPlayer':
-                self.players[i] = players[i](i, eventmanager, button_rects, self.switch_sides,
-                                             board_size, square_size)
+            if players[i][1].__name__ == 'HumanPlayer':
+                self.players[i] = players[i][1](i, eventmanager, button_rects, self.switch_sides,
+                                                board_size, square_size, name=players[i][0])
             else:
-                self.players[i] = players[i](i)
+                self.players[i] = players[i][1](i, name=players[i][0])
 
         self.scrollindex = 0
         self.captured_piece_nums = (0, 0)
@@ -220,16 +246,16 @@ class Game:
                 self.current_state.tie_request = board.NO_TIE_REQUEST
 
             if isinstance(action, int):
-                # todo: handle player wins / ties
                 if action == player.ACTION_RESIGN:
-                    print("{0} wins".format('Black' if not self.current_state.current_player else 'White'))
+                    self.winner = not self.current_state.current_player
+                    break
                 if action == player.ACTION_TIE:
                     if self.current_state.turn >= TIE_REQUEST_TURN and self.current_state.tie_request == \
                             (not self.current_state.current_player):
-                        print(0.5)
+                        self.winner = -1
+                        break
                     else:
                         raise Exception("Tie requested on turn {0}".format(self.current_state.turn))
-                break
 
             piece, move, tie_request = action
             if not DraughtsRules.is_valid_move(piece, move, self.current_state, self.current_state.current_player):
@@ -259,14 +285,11 @@ class Game:
             self.history.add_move(self.current_state, (piece.pos, move, len(captured_pieces) > 0), old_gamestate)
 
             if self.current_state.is_opponent_winning():
-                # todo: end game and announce winner
-                print("{0} wins".format('Black' if not self.current_state.current_player else 'White'))
+                self.winner = not self.current_state.current_player
                 break
             elif self.current_state.is_draw(self.history):
-                # todo: end game and announce draw
-                print("Draw")
+                self.winner = -1
                 break
-                pass
 
             # switch players and set history panel to last move
             if self.current_state.current_player:
@@ -278,6 +301,69 @@ class Game:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.keepgoing = False
+
+        self.display.draw_sidepanel_background()
+        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+        self.display.render_to_screen()
+
+        keepgoing = True
+        button_selected = False
+        mousebutton_pressed = False
+        while keepgoing:
+            mousepos = pygame.mouse.get_pos()
+
+            selectedbutton = -1
+            for index in range(len(self.button_rects)):
+                if self.button_rects[index][0] < mousepos[0] < self.button_rects[index][2] and \
+                        self.button_rects[index][1] < mousepos[1] < self.button_rects[index][3]:
+                    selectedbutton = index
+                    break
+
+            if not any(pygame.mouse.get_pressed()):
+                mousebutton_pressed = False
+
+            if selectedbutton >= 0:
+                if not button_selected:
+                    self.display.draw_sidepanel_background()
+                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                    self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+                    self.display.draw_button_overlay(self.button_rects[index])
+                    self.display.render_to_screen()
+
+                    button_selected = True
+
+                if not mousebutton_pressed and any(pygame.mouse.get_pressed()):
+                    mousebutton_pressed = True
+                    if 0 <= index <= 2:
+                        if index == 0:
+                            self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex - 1))
+                            if self.display_screen:
+                                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                                self.display.draw_button_overlay(self.button_rects[index])
+                                self.display.render_to_screen()
+                        elif index == 1:
+                            self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex + 1))
+                            if self.display_screen:
+                                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                                self.display.draw_button_overlay(self.button_rects[index])
+                                self.display.render_to_screen()
+                        else:
+                            keepgoing = False
+            else:
+                if button_selected:
+                    self.display.draw_sidepanel_background()
+                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                    self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+                    self.display.render_to_screen()
+
+                    button_selected = False
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    keepgoing = False
+
+        # todo: return values
 
     def notify(self, event):
         if event[0] == 'scroll':
@@ -318,16 +404,16 @@ class Game:
 
 
 def parse_colors(args):
-    colors = {}
+    clrs = {}
 
     for color in args:
         (key, value) = color
         try:
-            colors[key] = literal_eval(value)
+            clrs[key] = literal_eval(value)
         except SyntaxError or ValueError:
             return None
 
-    return colors
+    return clrs
 
 
 def load_player(p, nographics):
@@ -358,6 +444,19 @@ def load_player(p, nographics):
     raise Exception("The player {0} is not specified in any *player.py".format(p))
 
 
+def parse_players(player_args, nographics):
+    players = []
+    for p in player_args:
+        if '=' in p:
+            key, val = p.split('=')
+        else:
+            key, val = "", p
+
+        players.append((key, load_player(val, nographics)))
+
+    return players
+
+
 def parse_command_args(command_args):
     args = dict(
         disp_graphics=command_args.disp_graphics,
@@ -365,7 +464,8 @@ def parse_command_args(command_args):
     )
 
     # players
-    args['players'] = [load_player(p, not command_args.disp_graphics) for p in command_args.players]
+    # args['players'] = [load_player(p, not command_args.disp_graphics) for p in command_args.players]
+    args['players'] = parse_players(command_args.players, not command_args.disp_graphics)
 
     return args
 

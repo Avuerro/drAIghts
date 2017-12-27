@@ -1,7 +1,5 @@
 import pygame
 
-import board
-
 
 class BoardGraphics:
     def __init__(self, size, colors):
@@ -378,5 +376,92 @@ class PanelGraphics:
         size = (rect[2] - rect[0], rect[3] - rect[1])
         surf = pygame.Surface(size, pygame.SRCALPHA, 32)
         surf.fill(self.colors['button_highlight'])
+
+        return surf
+
+    def get_win_message_surface(self, winner_name, player_id):
+        surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
+        surf.fill((255, 255, 255, 0))
+
+        if player_id:
+            color = self.colors['piece_dark']
+        else:
+            color = self.colors['piece_light']
+
+        name_surf = self.font.render(winner_name, True, color)
+        surf.blit(
+            name_surf,
+            [
+                (self.size[0] - name_surf.get_width()) / 2,
+                7 * self.buttonsize_with_border[1],
+                name_surf.get_width(),
+                name_surf.get_height()
+            ]
+        )
+
+        winmessage_surf = self.font.render('wint!', True, self.colors['textcolor'])
+        surf.blit(
+            winmessage_surf,
+            [
+                (self.size[0] - winmessage_surf.get_width()) / 2,
+                7 * self.buttonsize_with_border[1] + self.buttonsize[1] / 2 + self.button_center_offset,
+                winmessage_surf.get_width(),
+                winmessage_surf.get_height()
+            ]
+        )
+
+        return surf
+
+    def get_tie_message_surface(self):
+        surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
+        surf.fill((255, 255, 255, 0))
+
+        tiemessage_surf = self.font.render('Remise', True, self.colors['textcolor'])
+        surf.blit(
+            tiemessage_surf,
+            [
+                (self.size[0] - tiemessage_surf.get_width()) / 2,
+                7 * self.buttonsize_with_border[1],
+                tiemessage_surf.get_width(),
+                tiemessage_surf.get_height()
+            ]
+        )
+
+        return surf
+
+    def get_continuebutton_surface(self):
+        surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
+        surf.fill((255, 255, 255, 0))
+
+        pygame.draw.rect(
+            surf,
+            self.colors['buttonbordercolor'],
+            pygame.Rect(
+                0,
+                8 * self.buttonsize_with_border[1],
+                self.buttonsize_with_border[0],
+                2 * self.buttonsize_with_border[1]
+            )
+        )
+        pygame.draw.rect(
+            surf,
+            self.colors['buttoncolor'],
+            pygame.Rect(
+                self.button_center_offset,
+                8 * self.buttonsize_with_border[1] + self.button_center_offset,
+                self.buttonsize[0],
+                2 * (self.buttonsize_with_border[1] - self.button_center_offset)
+            )
+        )
+        text_surf = self.font.render("Beëindig partij", True, self.colors['textcolor'])
+        surf.blit(
+            text_surf,
+            [
+                (self.size[0] - text_surf.get_width()) / 2,
+                8 * self.buttonsize_with_border[1] + (2 * self.buttonsize_with_border[1] - text_surf.get_height()) / 2,
+                text_surf.get_width(),
+                text_surf.get_height()
+            ]
+        )
 
         return surf

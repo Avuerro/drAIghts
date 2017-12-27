@@ -4,6 +4,12 @@ import random
 
 
 class RandomPlayer(player.Player):
+    def __init__(self, player_id, name=""):
+        if name == "":
+            name = "Random"
+
+        super(RandomPlayer, self).__init__(player_id, name)
+
     def get_action(self, current_state, history):
         possible_moves = DraughtsRules.get_all_possible_moves(current_state, self.player_id)
 
