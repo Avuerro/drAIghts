@@ -302,6 +302,9 @@ class Game:
                     if event.type == pygame.QUIT:
                         self.keepgoing = False
 
+        for p in self.players:
+            p.end_game(self.history, self.winner)
+
         self.display.draw_sidepanel_background()
         self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
         self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
@@ -363,7 +366,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     keepgoing = False
 
-        # todo: return values
+        return self.history
 
     def notify(self, event):
         if event[0] == 'scroll':
