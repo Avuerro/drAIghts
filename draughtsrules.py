@@ -24,14 +24,20 @@ class DraughtsRules:
                 newpos = (x + direction[0], y + direction[1])
                 if 0 <= newpos[0] <= 9 and 0 <= newpos[1] <= 9:
                     if newpos in opponent_piece_positions:
-                        after_capturepos = (newpos[0] + direction[0], newpos[1] + direction[1])
-                        if after_capturepos not in player_piece_positions and after_capturepos not in \
-                                opponent_piece_positions and 0 <= after_capturepos[0] <= 9 and 0 <= \
-                                after_capturepos[1] <= 9:
+                        after_capturepos = (
+                            newpos[0] + direction[0],
+                            newpos[1] + direction[1]
+                        )
+                        if after_capturepos not in player_piece_positions \
+                                and after_capturepos not in \
+                                opponent_piece_positions \
+                                and 0 <= after_capturepos[0] <= 9 \
+                                and 0 <= after_capturepos[1] <= 9:
                             capturedpositions.append([newpos])
                             capturedpositions[-1].append(after_capturepos)
-                    elif not captured_piece_positions and direction in forward_directions and newpos not \
-                            in player_piece_positions:
+                    elif not captured_piece_positions \
+                            and direction in forward_directions \
+                            and newpos not in player_piece_positions:
                         newpositions.append(newpos)
 
             if capturedpositions:
@@ -39,15 +45,23 @@ class DraughtsRules:
                     if capturedpos not in captured_piece_positions:
                         moves.append([capturedpos[1]])
 
-                        opponent_positions = [pos for pos in opponent_piece_positions if
-                                              pos != capturedpos[0]]
+                        opponent_positions = [
+                            pos
+                            for pos in opponent_piece_positions
+                            if pos != capturedpos[0]
+                        ]
                         captured_piece_positions.append(capturedpos[0])
 
                         newmoves = moves[-1]
 
-                        newmoves = DraughtsRules.get_moves(newmoves, piece_is_king, player_piece_positions,
-                                                           opponent_positions, captured_piece_positions,
-                                                           forward_directions)
+                        newmoves = DraughtsRules.get_moves(
+                            newmoves,
+                            piece_is_king,
+                            player_piece_positions,
+                            opponent_positions,
+                            captured_piece_positions,
+                            forward_directions
+                        )
 
                         newmoves = newmoves[1:]
                         if newmoves:
@@ -67,43 +81,76 @@ class DraughtsRules:
                     if newpos in captured_piece_positions:
                         break
                     if newpos in player_piece_positions:
-                        newpos = (newpos[0] - direction[0], newpos[1] - direction[1])
+                        newpos = (
+                            newpos[0] - direction[0],
+                            newpos[1] - direction[1]
+                        )
                         while newpos != moves[-1]:
                             if not captured_piece_positions:
                                 newpositions.append(newpos)
-                            newpos = (newpos[0] - direction[0], newpos[1] - direction[1])
+                            newpos = (
+                                newpos[0] - direction[0],
+                                newpos[1] - direction[1]
+                            )
 
                         break
                     elif newpos in opponent_piece_positions:
-                        if (newpos[0] + direction[0], newpos[1] + direction[1]) not in player_piece_positions and (
+                        if (
                                 newpos[0] + direction[0],
-                                newpos[1] + direction[1]) not in opponent_piece_positions and 0 <= newpos[0] + \
-                                direction[0] <= 9 and 0 <= newpos[1] + direction[1] <= 9:
+                                newpos[1] + direction[1]
+                        ) not in player_piece_positions \
+                                and (
+                                newpos[0] + direction[0],
+                                newpos[1] + direction[1]
+                        ) not in opponent_piece_positions \
+                                and 0 <= newpos[0] + direction[0] <= 9 \
+                                and 0 <= newpos[1] + direction[1] <= 9:
                             capturedpositions.append([newpos, []])
-                            newpos = (newpos[0] + direction[0], newpos[1] + direction[1])
-                            while newpos not in player_piece_positions and newpos not in opponent_piece_positions \
-                                    and 0 <= newpos[0] <= 9 and 0 <= newpos[1] <= 9:
+                            newpos = (
+                                newpos[0] + direction[0],
+                                newpos[1] + direction[1]
+                            )
+                            while newpos not in player_piece_positions \
+                                    and newpos not in opponent_piece_positions \
+                                    and 0 <= newpos[0] <= 9 \
+                                    and 0 <= newpos[1] <= 9:
                                 capturedpositions[-1][1].append(newpos)
-                                newpos = (newpos[0] + direction[0], newpos[1] + direction[1])
+                                newpos = (
+                                    newpos[0] + direction[0],
+                                    newpos[1] + direction[1]
+                                )
 
                         break
                     elif not captured_piece_positions:
                         newpositions.append(newpos)
 
-                    newpos = (newpos[0] + direction[0], newpos[1] + direction[1])
+                    newpos = (
+                        newpos[0] + direction[0],
+                        newpos[1] + direction[1]
+                    )
 
             if capturedpositions:
                 for capturedpos in capturedpositions:
-                    opponent_positions = [pos for pos in opponent_piece_positions if pos != capturedpos[0]]
-                    captured_positions = captured_piece_positions + [capturedpos[0]]
+                    opponent_positions = [
+                        pos for pos in opponent_piece_positions
+                        if pos != capturedpos[0]
+                    ]
+                    captured_positions = captured_piece_positions + [
+                        capturedpos[0]
+                    ]
 
                     for move in capturedpos[1]:
                         if move not in captured_piece_positions:
                             moves.append([move])
                             newmoves = [move]
-                            newmoves = DraughtsRules.get_moves(newmoves, piece_is_king, player_piece_positions,
-                                                               opponent_positions, captured_positions,
-                                                               forward_directions)
+                            newmoves = DraughtsRules.get_moves(
+                                newmoves,
+                                piece_is_king,
+                                player_piece_positions,
+                                opponent_positions,
+                                captured_positions,
+                                forward_directions
+                            )
                             newmoves = newmoves[1:]
                             if newmoves:
                                 moves[-1].append(newmoves)
@@ -121,7 +168,9 @@ class DraughtsRules:
     @staticmethod
     def flatten_movelist(moves):
         if isinstance(moves, list):
-            if len(moves) == 2 and not isinstance(moves[0], list) and isinstance(moves[1], list):
+            if len(moves) == 2 \
+                    and not isinstance(moves[0], list) \
+                    and isinstance(moves[1], list):
                 flattenedlist = [moves[0]]
                 flattenedlist.extend(DraughtsRules.flatten_movelist(moves[1]))
                 return flattenedlist
@@ -141,7 +190,12 @@ class DraughtsRules:
         for index in range(len(moves)):
             if isinstance(moves[index], list):
                 branched = True
-                possible_moves.extend(DraughtsRules.get_longest_moves(action_list, moves[index]))
+                possible_moves.extend(
+                    DraughtsRules.get_longest_moves(
+                        action_list,
+                        moves[index]
+                    )
+                )
             else:
                 action_list.append(moves[index])
 
@@ -150,12 +204,19 @@ class DraughtsRules:
 
         possible_moves.sort(key=lambda move: len(move), reverse=True)
         max_length = len(possible_moves[0])
-        possible_moves = [move for move in possible_moves if len(move) == max_length]
+        possible_moves = [
+            move for move in possible_moves if len(move) == max_length
+        ]
 
         return possible_moves
 
     @staticmethod
-    def get_piece_possible_moves(piece, player_pieces, opponent_pieces, player_id):
+    def get_piece_possible_moves(
+            piece,
+            player_pieces,
+            opponent_pieces,
+            player_id
+    ):
         player_piece_positions = [p.pos for p in player_pieces]
         opponent_piece_positions = [p.pos for p in opponent_pieces]
         forward_directions = directions[2 * player_id:2 * player_id + 2]
@@ -212,9 +273,20 @@ class DraughtsRules:
         all_moves = []
         max_captures = 0
         for piece in player_pieces:
-            piece_moves = DraughtsRules.get_piece_possible_moves(piece, player_pieces, opponent_pieces, player_id)
+            piece_moves = DraughtsRules.get_piece_possible_moves(
+                piece,
+                player_pieces,
+                opponent_pieces,
+                player_id
+            )
             if piece_moves and piece_moves[0]:
-                num_captures = len(DraughtsRules.get_captured_pieces(piece, piece_moves[0], opponent_pieces))
+                num_captures = len(
+                    DraughtsRules.get_captured_pieces(
+                        piece,
+                        piece_moves[0],
+                        opponent_pieces
+                    )
+                )
                 if num_captures > max_captures:
                     all_moves = [(piece, piece_moves)]
                     max_captures = num_captures

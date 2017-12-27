@@ -61,7 +61,8 @@ class BoardGrid:
     def __ne__(self, other):
         return not self == other
 
-    def get_board_index(self, pos):
+    @staticmethod
+    def get_board_index(pos):
         return (10 * pos[1] + pos[0]) // 2 * 3
 
     def get_pieces(self, player_id):
@@ -69,9 +70,15 @@ class BoardGrid:
         for y in range(10):
             for x in range(5):
                 board_index = 15 * y + 3 * x
-                if self._pieces[board_index] and self._pieces[board_index + 2] == player_id:
+                if self._pieces[board_index] and \
+                        self._pieces[board_index + 2] == player_id:
                     square_offset = (board_index // 3 + 1) % 10
-                    pieces.append(Piece((2 * x + (1 <= square_offset <= 5), y), self._pieces[board_index + 1]))
+                    pieces.append(
+                        Piece(
+                            (2 * x + (1 <= square_offset <= 5), y),
+                            self._pieces[board_index + 1]
+                        )
+                    )
 
         return pieces
 
@@ -80,7 +87,10 @@ class BoardGrid:
 
         if self._pieces[board_index]:
             square_offset = (board_index // 3 + 1) % 10
-            return Piece((2 * pos[0] + (1 <= square_offset <= 5), pos[1]), self._pieces[board_index + 1])
+            return Piece(
+                (2 * pos[0] + (1 <= square_offset <= 5), pos[1]),
+                self._pieces[board_index + 1]
+            )
 
     def remove_piece(self, pos):
         board_index = self.get_board_index(pos)
@@ -92,22 +102,25 @@ class BoardGrid:
 
         return True
 
-    def move_piece(self, startpos, endpos):
-        startpos_board_index = self.get_board_index(startpos)
+    def move_piece(self, start_pos, end_pos):
+        startpos_board_index = self.get_board_index(start_pos)
 
         if not self._pieces[startpos_board_index]:
             return False
 
-        endpos_board_index = self.get_board_index(endpos)
+        endpos_board_index = self.get_board_index(end_pos)
 
         if self._pieces[endpos_board_index]:
             return False
 
         self._pieces[endpos_board_index] = True
-        self._pieces[endpos_board_index + 1] = self._pieces[startpos_board_index + 1]
-        self._pieces[endpos_board_index + 2] = self._pieces[startpos_board_index + 2]
+        self._pieces[endpos_board_index + 1] = \
+            self._pieces[startpos_board_index + 1]
+        self._pieces[endpos_board_index + 2] = \
+            self._pieces[startpos_board_index + 2]
 
-        self._pieces[startpos_board_index:startpos_board_index + 3] = bitarray.bitarray('000')
+        self._pieces[startpos_board_index:startpos_board_index + 3] = \
+            bitarray.bitarray('000')
 
         return True
 
@@ -143,7 +156,13 @@ INVALID_TIE_REQUEST = 3
 
 
 class GameState:
-    def __init__(self, board=None, turn=1, player=0, tie_request=NO_TIE_REQUEST):
+    def __init__(
+            self,
+            board=None,
+            turn=1,
+            player=0,
+            tie_request=NO_TIE_REQUEST
+    ):
         if not board:
             self.board = BoardGrid()
         else:
@@ -154,9 +173,13 @@ class GameState:
         self.current_player = player
 
     def is_opponent_winning(self):
-        return not DraughtsRules.get_all_possible_moves(self, self.current_player)
+        return not DraughtsRules.get_all_possible_moves(
+            self,
+            self.current_player
+        )
 
-    def is_draw(self, history):
+    @staticmethod
+    def is_draw(history):
         if history.onevs2_moves >= 10:
             return True
         elif history.onevs3_moves >= 32:
@@ -183,7 +206,8 @@ class GameState:
             board=self.board,
             turn=self.turn if not self.current_player else self.turn + 1,
             player=not self.current_player,
-            tie_request=self.tie_request if self.tie_request == self.current_player else NO_TIE_REQUEST
+            tie_request=self.tie_request if
+            self.tie_request == self.current_player else NO_TIE_REQUEST
         )
 
         captured_pieces = DraughtsRules.get_captured_pieces(
@@ -222,7 +246,8 @@ class History:
 
             index += 1
 
-    def convert_pos_to_index(self, pos):
+    @staticmethod
+    def convert_pos_to_index(pos):
         return (10 * pos[1] + pos[0]) // 2 + 1
 
     def convert_move_to_str(self, move):
@@ -233,7 +258,8 @@ class History:
         )
 
     def movelist_as_string(self):
-        str_movelist = [' '.join(self.convert_move_to_str(move) for move in moves)
+        str_movelist = [' '.join(self.convert_move_to_str(move)
+                                 for move in moves)
                         for moves in self.get_moves_in_pairs()]
 
         return str_movelist
@@ -241,16 +267,23 @@ class History:
     def add_move(self, new_gamestate, move, old_gamestate):
         self.movelist.append(move)
 
-        pieces = [old_gamestate.board.get_pieces(0), old_gamestate.board.get_pieces(1)]
+        pieces = [
+            old_gamestate.board.get_pieces(0),
+            old_gamestate.board.get_pieces(1)
+        ]
 
         for player_index in range(2):
             opponent_index = not player_index
 
-            if len(pieces[player_index]) == 2 and len(pieces[opponent_index]) == 1 and any(
-                    piece.is_king for piece in pieces[player_index]) and pieces[opponent_index][0].is_king:
+            if len(pieces[player_index]) == 2 \
+                    and len(pieces[opponent_index]) == 1 \
+                    and any(piece.is_king for piece in pieces[player_index]) \
+                    and pieces[opponent_index][0].is_king:
                 self.onevs2_moves += 1
-            elif len(pieces[player_index]) == 3 and len(pieces[opponent_index]) == 1 and any(
-                    piece.is_king for piece in pieces[player_index]) and pieces[opponent_index][0].is_king:
+            elif len(pieces[player_index]) == 3 \
+                    and len(pieces[opponent_index]) == 1 \
+                    and any(piece.is_king for piece in pieces[player_index]) \
+                    and pieces[opponent_index][0].is_king:
                 self.onevs3_moves += 1
 
         if old_gamestate.board.get_piece_status(move[0]) and not move[2]:
@@ -260,8 +293,8 @@ class History:
 
         num_gamestate = 1
         for state in self.gamestates:
-            if new_gamestate.current_player == state[0].current_player and new_gamestate.board \
-                    == state[0].board:
+            if new_gamestate.current_player == state[0].current_player \
+                    and new_gamestate.board == state[0].board:
                 num_gamestate += 1
 
         self.gamestates.append((new_gamestate, num_gamestate))

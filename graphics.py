@@ -38,35 +38,86 @@ class BoardGraphics:
 
     def __draw_piece(self, surf, pos, color, is_king):
         # outline
-        pygame.draw.ellipse(surf, self.colors["piece_outline"], (pos[0], pos[1], self.piece_size, self.piece_size), 0)
+        pygame.draw.ellipse(
+            surf,
+            self.colors["piece_outline"],
+            (
+                pos[0],
+                pos[1],
+                self.piece_size,
+                self.piece_size
+            ),
+            0
+        )
 
         # piece color
-        pygame.draw.ellipse(surf, color, (pos[0] + 1, pos[1] + 1, self.piece_size - 1, self.piece_size - 1), 0)
+        pygame.draw.ellipse(
+            surf,
+            color,
+            (
+                pos[0] + 1,
+                pos[1] + 1,
+                self.piece_size - 1,
+                self.piece_size - 1
+            ),
+            0
+        )
 
         # crown
         if is_king:
             pygame.draw.polygon(
                 surf, self.colors["king"],
-                ((pos[0] + self.piece_size / 5, pos[1] + self.piece_size / 10 * 3),
-                 (pos[0] + self.piece_size / 2, pos[1] + self.piece_size / 10 * 6),
-                 (pos[0] + self.piece_size / 5, pos[1] + self.piece_size / 10 * 6)
-                 )
+                (
+                    (
+                        pos[0] + self.piece_size / 5,
+                        pos[1] + self.piece_size / 10 * 3
+                    ),
+                    (
+                        pos[0] + self.piece_size / 2,
+                        pos[1] + self.piece_size / 10 * 6
+                    ),
+                    (
+                        pos[0] + self.piece_size / 5,
+                        pos[1] + self.piece_size / 10 * 6
+                    )
+                )
+            )
+
+            pygame.draw.polygon(
+                surf,
+                self.colors["king"],
+                (
+                    (
+                        pos[0] + self.piece_size / 5 * 4,
+                        pos[1] + self.piece_size / 10 * 3
+                    ),
+                    (
+                        pos[0] + self.piece_size / 2,
+                        pos[1] + self.piece_size / 10 * 6
+                    ),
+                    (
+                        pos[0] + self.piece_size / 5 * 4,
+                        pos[1] + self.piece_size / 10 * 6
+                    )
+                )
             )
 
             pygame.draw.polygon(
                 surf, self.colors["king"],
-                ((pos[0] + self.piece_size / 5 * 4, pos[1] + self.piece_size / 10 * 3),
-                 (pos[0] + self.piece_size / 2, pos[1] + self.piece_size / 10 * 6),
-                 (pos[0] + self.piece_size / 5 * 4, pos[1] + self.piece_size / 10 * 6)
-                 )
-            )
-
-            pygame.draw.polygon(
-                surf, self.colors["king"],
-                ((pos[0] + self.piece_size / 5, pos[1] + self.piece_size / 5 * 3),
-                 (pos[0] + self.piece_size / 2, pos[1] + self.piece_size / 10 * 4),
-                 (pos[0] + self.piece_size / 5 * 4, pos[1] + self.piece_size / 5 * 3)
-                 )
+                (
+                    (
+                        pos[0] + self.piece_size / 5,
+                        pos[1] + self.piece_size / 5 * 3
+                    ),
+                    (
+                        pos[0] + self.piece_size / 2,
+                        pos[1] + self.piece_size / 10 * 4
+                    ),
+                    (
+                        pos[0] + self.piece_size / 5 * 4,
+                        pos[1] + self.piece_size / 5 * 3
+                    )
+                )
             )
 
     def draw_current_player_piece(self, surf, pos, is_king, current_player):
@@ -75,43 +126,97 @@ class BoardGraphics:
             pos[1] * self.square_size + self.piece_offset
         )
 
-        pygame.draw.ellipse(surf, self.colors["piece_outline"],
-                            (draw_pos[0], draw_pos[1], self.piece_size, self.piece_size), 0)
+        pygame.draw.ellipse(
+            surf,
+            self.colors["piece_outline"],
+            (
+                draw_pos[0],
+                draw_pos[1],
+                self.piece_size,
+                self.piece_size
+            ),
+            0
+        )
 
         if current_player == 0:
             color = self.colors["piece_light"]
         else:
             color = self.colors["piece_dark"]
 
-        pygame.draw.ellipse(surf, color, (draw_pos[0] + 1, draw_pos[1] + 1, self.piece_size - 1, self.piece_size - 1),
-                            0)
+        pygame.draw.ellipse(
+            surf,
+            color,
+            (
+                draw_pos[0] + 1,
+                draw_pos[1] + 1,
+                self.piece_size - 1,
+                self.piece_size - 1),
+            0
+        )
 
         if is_king:
             pygame.draw.polygon(
                 surf, self.colors["king"],
-                ((draw_pos[0] + self.piece_size / 5, draw_pos[1] + self.piece_size / 10 * 3),
-                 (draw_pos[0] + self.piece_size / 2, draw_pos[1] + self.piece_size / 10 * 6),
-                 (draw_pos[0] + self.piece_size / 5, draw_pos[1] + self.piece_size / 10 * 6)
-                 )
+                (
+                    (
+                        draw_pos[0] + self.piece_size / 5,
+                        draw_pos[1] + self.piece_size / 10 * 3
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 2,
+                        draw_pos[1] + self.piece_size / 10 * 6
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 5,
+                        draw_pos[1] + self.piece_size / 10 * 6
+                    )
+                )
+            )
+
+            pygame.draw.polygon(
+                surf,
+                self.colors["king"],
+                (
+                    (
+                        draw_pos[0] + self.piece_size / 5 * 4,
+                        draw_pos[1] + self.piece_size / 10 * 3
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 2,
+                        draw_pos[1] + self.piece_size / 10 * 6
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 5 * 4,
+                        draw_pos[1] + self.piece_size / 10 * 6
+                    )
+                )
             )
 
             pygame.draw.polygon(
                 surf, self.colors["king"],
-                ((draw_pos[0] + self.piece_size / 5 * 4, draw_pos[1] + self.piece_size / 10 * 3),
-                 (draw_pos[0] + self.piece_size / 2, draw_pos[1] + self.piece_size / 10 * 6),
-                 (draw_pos[0] + self.piece_size / 5 * 4, draw_pos[1] + self.piece_size / 10 * 6)
-                 )
+                (
+                    (
+                        draw_pos[0] + self.piece_size / 5,
+                        draw_pos[1] + self.piece_size / 5 * 3
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 2,
+                        draw_pos[1] + self.piece_size / 10 * 4
+                    ),
+                    (
+                        draw_pos[0] + self.piece_size / 5 * 4,
+                        draw_pos[1] + self.piece_size / 5 * 3
+                    )
+                )
             )
 
-            pygame.draw.polygon(
-                surf, self.colors["king"],
-                ((draw_pos[0] + self.piece_size / 5, draw_pos[1] + self.piece_size / 5 * 3),
-                 (draw_pos[0] + self.piece_size / 2, draw_pos[1] + self.piece_size / 10 * 4),
-                 (draw_pos[0] + self.piece_size / 5 * 4, draw_pos[1] + self.piece_size / 5 * 3)
-                 )
-            )
-
-    def get_piece_surface(self, player_pieces, opponent_pieces, current_player, switch_sides):
+    def get_piece_surface(
+            self,
+            player_pieces,
+            opponent_pieces,
+            current_player,
+            switch_sides
+    ):
         surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
         surf.fill((255, 255, 255, 0))
 
@@ -128,13 +233,17 @@ class BoardGraphics:
 
             for piece in pieces:
                 if switch_sides:
-                    pos = (9 - piece.pos[0], 9 - piece.pos[1]) if current_player else piece.pos
+                    pos = (
+                        9 - piece.pos[0],
+                        9 - piece.pos[1]
+                    ) if current_player else piece.pos
                 else:
                     pos = piece.pos
                 self.__draw_piece(
                     surf,
                     (
-                        self.size[0] - (10 - pos[0]) * self.square_size + self.piece_offset,
+                        self.size[0] - (10 - pos[0]) * self.square_size
+                        + self.piece_offset,
                         pos[1] * self.square_size + self.piece_offset
                     ),
                     color,
@@ -164,9 +273,19 @@ class BoardGraphics:
             )
 
             (_, height) = self.font.size(str(captured_pieces[index]))
-            text_surf = self.font.render(str(captured_pieces[index]), True, self.colors["font"])
-            surf.blit(text_surf, (
-                self.piece_offset + self.square_size, (self.square_size - height) / 2 + index * self.square_size))
+            text_surf = self.font.render(
+                str(captured_pieces[index]),
+                True,
+                self.colors["font"]
+            )
+            surf.blit(
+                text_surf,
+                (
+                    self.piece_offset + self.square_size,
+                    (self.square_size - height) / 2
+                    + index * self.square_size
+                )
+            )
 
         return surf
 
@@ -199,11 +318,14 @@ class PanelGraphics:
         self.size = size
         self.buttonsize_with_border = (size[0], size[1] / 10)
         self.button_center_offset = max(self.buttonsize_with_border) / 40
-        self.buttonsize = (self.buttonsize_with_border[0] - 2 * self.button_center_offset,
-                           self.buttonsize_with_border[1] - 2 * self.button_center_offset)
+        self.buttonsize = (
+            self.buttonsize_with_border[0] - 2 * self.button_center_offset,
+            self.buttonsize_with_border[1] - 2 * self.button_center_offset
+        )
 
         self.colors = colors
-        self.font = pygame.font.SysFont("inconsolata", int(self.buttonsize[1] / 2))
+        self.font = pygame.font.SysFont("inconsolata",
+                                        int(self.buttonsize[1] / 2))
 
     def get_panel_background_surface(self):
         surf = pygame.Surface(self.size)
@@ -237,7 +359,8 @@ class PanelGraphics:
             text_surf,
             [
                 (self.buttonsize_with_border[0] - width) / 2,
-                8 * self.buttonsize_with_border[1] + (self.buttonsize_with_border[1] - height) / 2,
+                8 * self.buttonsize_with_border[1]
+                + (self.buttonsize_with_border[1] - height) / 2,
                 text_surf.get_width(),
                 text_surf.get_height()
             ]
@@ -271,7 +394,8 @@ class PanelGraphics:
             text_surf,
             [
                 (self.buttonsize_with_border[0] - width) / 2,
-                9 * self.buttonsize_with_border[1] + (self.buttonsize_with_border[1] - height) / 2,
+                9 * self.buttonsize_with_border[1]
+                + (self.buttonsize_with_border[1] - height) / 2,
                 text_surf.get_width(),
                 text_surf.get_height()
             ]
@@ -290,7 +414,8 @@ class PanelGraphics:
                 self.button_center_offset,
                 self.button_center_offset,
                 self.buttonsize[0],
-                7 * self.buttonsize_with_border[1] - 2 * self.button_center_offset
+                7 * self.buttonsize_with_border[1]
+                - 2 * self.button_center_offset
             )
         )
 
@@ -298,9 +423,18 @@ class PanelGraphics:
             surf,
             self.colors['textcolor'],
             (
-                (self.buttonsize[0] - 2 * self.button_center_offset, 3 * self.button_center_offset),
-                (self.buttonsize[0], 3 * self.button_center_offset),
-                (self.buttonsize[0] - self.button_center_offset, 2 * self.button_center_offset)
+                (
+                    self.buttonsize[0] - 2 * self.button_center_offset,
+                    3 * self.button_center_offset
+                ),
+                (
+                    self.buttonsize[0],
+                    3 * self.button_center_offset
+                ),
+                (
+                    self.buttonsize[0] - self.button_center_offset,
+                    2 * self.button_center_offset
+                )
             )
         )
         pygame.draw.polygon(
@@ -309,27 +443,38 @@ class PanelGraphics:
             (
                 (
                     self.buttonsize[0] - 2 * self.button_center_offset,
-                    7 * self.buttonsize_with_border[1] - 3 * self.button_center_offset
+                    7 * self.buttonsize_with_border[1]
+                    - 3 * self.button_center_offset
                 ),
                 (
                     self.buttonsize[0],
-                    7 * self.buttonsize_with_border[1] - 3 * self.button_center_offset
+                    7 * self.buttonsize_with_border[1]
+                    - 3 * self.button_center_offset
                 ),
                 (
                     self.buttonsize[0] - self.button_center_offset,
-                    7 * self.buttonsize_with_border[1] - 2 * self.button_center_offset
+                    7 * self.buttonsize_with_border[1]
+                    - 2 * self.button_center_offset
                 )
             )
         )
 
         offset = 0
-        for turnIndex in range(max(0, scrollindex), min(len(movelist), scrollindex + 13)):
-            textsurf = self.font.render(str(turnIndex + 1) + '. ' + movelist[turnIndex], True, self.colors['textcolor'])
+        for turn_index in range(
+                max(0, scrollindex),
+                min(len(movelist), scrollindex + 13)
+        ):
+            textsurf = self.font.render(
+                "{0}. {1}".format(turn_index + 1, movelist[turn_index]),
+                True,
+                self.colors['textcolor']
+            )
             surf.blit(
                 textsurf,
                 [
                     2 * self.button_center_offset,
-                    3 * self.button_center_offset + offset * (self.buttonsize[1] / 2 + self.button_center_offset),
+                    3 * self.button_center_offset + offset
+                    * (self.buttonsize[1] / 2 + self.button_center_offset),
                     textsurf.get_width(),
                     textsurf.get_height()
                 ]
@@ -339,12 +484,18 @@ class PanelGraphics:
 
         return surf
 
-    def get_consolemessage_surface(self, current_player, tie_request):
+    def get_consolemessage_surface(self, name, current_player, tie_request):
         surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
         surf.fill((255, 255, 255, 0))
 
-        player_message = '{0} aan zet'.format('Zwart' if current_player else 'Wit')
-        text_surf = self.font.render(player_message, True, self.colors['textcolor'])
+        player_message = '{0} aan zet'.format(
+            name
+        )
+        if current_player:
+            color = self.colors['piece_dark']
+        else:
+            color = self.colors['piece_light']
+        text_surf = self.font.render(player_message, True, color)
         surf.blit(
             text_surf,
             [
@@ -359,12 +510,15 @@ class PanelGraphics:
         if tie_request == (not current_player):
             text = "Accepteer remise?"
 
-        text_surf = self.font.render(text, True, self.colors['textcolor'])
+        text_surf = self.font.render(
+            text, True, self.colors['textcolor']
+        )
         surf.blit(
             text_surf,
             [
                 (self.size[0] - text_surf.get_width()) / 2,
-                7 * self.buttonsize_with_border[1] + self.buttonsize[1] / 2 + self.button_center_offset,
+                7 * self.buttonsize_with_border[1] + self.buttonsize[1] / 2
+                + self.button_center_offset,
                 text_surf.get_width(),
                 text_surf.get_height()
             ]
@@ -399,12 +553,17 @@ class PanelGraphics:
             ]
         )
 
-        winmessage_surf = self.font.render('wint!', True, self.colors['textcolor'])
+        winmessage_surf = self.font.render(
+            'wint!',
+            True,
+            self.colors['textcolor']
+        )
         surf.blit(
             winmessage_surf,
             [
                 (self.size[0] - winmessage_surf.get_width()) / 2,
-                7 * self.buttonsize_with_border[1] + self.buttonsize[1] / 2 + self.button_center_offset,
+                7 * self.buttonsize_with_border[1] + self.buttonsize[1] / 2
+                + self.button_center_offset,
                 winmessage_surf.get_width(),
                 winmessage_surf.get_height()
             ]
@@ -416,7 +575,11 @@ class PanelGraphics:
         surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
         surf.fill((255, 255, 255, 0))
 
-        tiemessage_surf = self.font.render('Remise', True, self.colors['textcolor'])
+        tiemessage_surf = self.font.render(
+            'Remise',
+            True,
+            self.colors['textcolor']
+        )
         surf.blit(
             tiemessage_surf,
             [
@@ -453,12 +616,18 @@ class PanelGraphics:
                 2 * (self.buttonsize_with_border[1] - self.button_center_offset)
             )
         )
-        text_surf = self.font.render("Beëindig partij", True, self.colors['textcolor'])
+        text_surf = self.font.render(
+            "Beëindig partij",
+            True,
+            self.colors['textcolor']
+        )
         surf.blit(
             text_surf,
             [
                 (self.size[0] - text_surf.get_width()) / 2,
-                8 * self.buttonsize_with_border[1] + (2 * self.buttonsize_with_border[1] - text_surf.get_height()) / 2,
+                8 * self.buttonsize_with_border[1]
+                + (2 * self.buttonsize_with_border[1] - text_surf.get_height())
+                / 2,
                 text_surf.get_width(),
                 text_surf.get_height()
             ]

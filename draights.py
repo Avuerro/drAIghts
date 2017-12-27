@@ -22,33 +22,71 @@ class Display:
     def __init__(self, colors):
         pygame.init()
         self.window = pygame.display.set_mode(
-            (Display.BOARD_SIZE[0] + Display.PANEL_SIZE[0], max(Display.BOARD_SIZE[1], Display.PANEL_SIZE[1])))
+            (
+                Display.BOARD_SIZE[0] + Display.PANEL_SIZE[0],
+                max(Display.BOARD_SIZE[1], Display.PANEL_SIZE[1])
+            )
+        )
         pygame.display.set_caption('DrAIghts')
 
         self.board_graphics = graphics.BoardGraphics(Display.BOARD_SIZE, colors)
         self.panel_graphics = graphics.PanelGraphics(Display.PANEL_SIZE, colors)
 
-        self.background = pygame.Surface(self.window.get_size(), pygame.SRCALPHA, 32)
+        self.background = pygame.Surface(
+            self.window.get_size(),
+            pygame.SRCALPHA,
+            32
+        )
 
     def draw_board_background(self):
         surface = self.board_graphics.get_board_background_surface()
-        self.background.blit(surface, [0, 0, surface.get_width(), surface.get_height()])
+        self.background.blit(
+            surface,
+            [
+                0,
+                0,
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
         pygame.display.update()
 
-    def draw_pieces(self, player_pieces, opponent_pieces, current_player, switch_sides, captured_piece_nums,
-                    movingpiece=None):
-        surface = self.board_graphics.get_piece_surface(player_pieces, opponent_pieces, current_player, switch_sides)
+    def draw_pieces(
+            self,
+            player_pieces,
+            opponent_pieces,
+            current_player,
+            switch_sides,
+            captured_piece_nums,
+            movingpiece=None
+    ):
+        surface = self.board_graphics.get_piece_surface(
+            player_pieces,
+            opponent_pieces,
+            current_player,
+            switch_sides
+        )
 
         if movingpiece:
             if switch_sides:
-                pos = (9 - movingpiece.pos[0], 9 - movingpiece.pos[1]) if current_player else movingpiece.pos
+                pos = (
+                    9 - movingpiece.pos[0],
+                    9 - movingpiece.pos[1]
+                ) if current_player else movingpiece.pos
             else:
                 pos = movingpiece.pos
-            self.board_graphics.draw_current_player_piece(surface, pos, movingpiece.is_king, current_player)
+            self.board_graphics.draw_current_player_piece(
+                surface,
+                pos,
+                movingpiece.is_king,
+                current_player
+            )
 
         self.background.blit(surface, (0, 0))
 
-        surface = self.board_graphics.get_captured_piece_surface(captured_piece_nums)
+        surface = self.board_graphics.get_captured_piece_surface(
+            captured_piece_nums
+        )
         self.background.blit(surface, (0, 0))
 
     def draw_highlighted_spaces(self, spaces_list, switch_sides):
@@ -62,32 +100,96 @@ class Display:
 
     def draw_sidepanel_background(self):
         surface = self.panel_graphics.get_panel_background_surface()
-        self.background.blit(surface, [Display.BOARD_SIZE[0], 0, surface.get_width(), surface.get_height()])
+        self.background.blit(
+            surface,
+            [
+                Display.BOARD_SIZE[0],
+                0,
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
 
     def draw_history(self, movelist, scrollindex):
-        surface = self.panel_graphics.get_movelist_surface(movelist, scrollindex)
-        self.background.blit(surface, [Display.BOARD_SIZE[0], 0, surface.get_width(), surface.get_height()])
+        surface = self.panel_graphics.get_movelist_surface(
+            movelist,
+            scrollindex
+        )
+        self.background.blit(
+            surface,
+            [
+                Display.BOARD_SIZE[0],
+                0,
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
 
-    def draw_console_messages(self, current_player, tie_request):
-        surface = self.panel_graphics.get_consolemessage_surface(current_player, tie_request)
-        self.background.blit(surface, [Display.BOARD_SIZE[0], 0, surface.get_width(), surface.get_height()])
+    def draw_console_messages(self, name, current_player, tie_request):
+        surface = self.panel_graphics.get_consolemessage_surface(
+            name,
+            current_player,
+            tie_request
+        )
+        self.background.blit(
+            surface,
+            [
+                Display.BOARD_SIZE[0],
+                0,
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
 
     def draw_button_overlay(self, button_rect):
         surface = self.panel_graphics.get_highlight_button_surface(button_rect)
-        self.background.blit(surface, [button_rect[0], button_rect[1], surface.get_width(), surface.get_height()])
+        self.background.blit(
+            surface,
+            [
+                button_rect[0],
+                button_rect[1],
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
 
     def announce_winner(self, is_winner, winner_name="", winner_id=0):
         surface = self.panel_graphics.get_continuebutton_surface()
-        self.background.blit(surface, [Display.BOARD_SIZE[0], 0, surface.get_width(), surface.get_height()])
+        self.background.blit(
+            surface,
+            [
+                Display.BOARD_SIZE[0],
+                0,
+                surface.get_width(),
+                surface.get_height()
+            ]
+        )
 
         if is_winner:
-            win_surface = self.panel_graphics.get_win_message_surface(winner_name, winner_id)
-            self.background.blit(win_surface,
-                                 [Display.BOARD_SIZE[0], 0, win_surface.get_width(), win_surface.get_height()])
+            win_surface = self.panel_graphics.get_win_message_surface(
+                winner_name,
+                winner_id
+            )
+            self.background.blit(
+                win_surface,
+                [
+                    Display.BOARD_SIZE[0],
+                    0,
+                    win_surface.get_width(),
+                    win_surface.get_height()
+                ]
+            )
         else:
             tie_surface = self.panel_graphics.get_tie_message_surface()
-            self.background.blit(tie_surface,
-                                 [Display.BOARD_SIZE[0], 0, tie_surface.get_width(), tie_surface.get_height()])
+            self.background.blit(
+                tie_surface,
+                [
+                    Display.BOARD_SIZE[0],
+                    0,
+                    tie_surface.get_width(),
+                    tie_surface.get_height()
+                ]
+            )
 
     def render_to_screen(self):
         self.window.blit(self.background, (0, 0))
@@ -110,7 +212,7 @@ class Game:
         self.switch_sides = switch_sides
 
         if self.display_screen:
-            self.display = Display(colors)
+            self.display = Display(display_colors)
 
         self.current_state = board.GameState()
         self.history = board.History(self.current_state)
@@ -124,8 +226,10 @@ class Game:
         panel_size = Display.PANEL_SIZE
         buttonsize_with_border = (panel_size[0], panel_size[1] / 10)
         button_center_offset = max(buttonsize_with_border) / 40
-        buttonsize = (buttonsize_with_border[0] - 2 * button_center_offset,
-                      buttonsize_with_border[1] - 2 * button_center_offset)
+        buttonsize = (
+            buttonsize_with_border[0] - 2 * button_center_offset,
+            buttonsize_with_border[1] - 2 * button_center_offset
+        )
         button_rects = [
             (
                 board_size[0] + buttonsize[0] - 3 * button_center_offset,
@@ -143,13 +247,15 @@ class Game:
                 board_size[0] + button_center_offset,
                 8 * buttonsize_with_border[1] + button_center_offset,
                 board_size[0] + button_center_offset + buttonsize[0],
-                8 * buttonsize_with_border[1] + buttonsize[1] + button_center_offset
+                8 * buttonsize_with_border[1] + buttonsize[1]
+                + button_center_offset
             ),
             (
                 board_size[0] + button_center_offset,
                 9 * buttonsize_with_border[1] + button_center_offset,
                 board_size[0] + button_center_offset + buttonsize[0],
-                9 * buttonsize_with_border[1] + buttonsize[1] + button_center_offset
+                9 * buttonsize_with_border[1] + buttonsize[1]
+                + button_center_offset
             )
         ]
 
@@ -160,17 +266,27 @@ class Game:
                 board_size[0] + button_center_offset,
                 8 * buttonsize_with_border[1] + button_center_offset,
                 board_size[0] + button_center_offset + buttonsize[0],
-                8 * buttonsize_with_border[1] + button_center_offset + 2 * (
-                        buttonsize_with_border[1] - button_center_offset)
+                8 * buttonsize_with_border[1] + button_center_offset
+                + 2 * (buttonsize_with_border[1] - button_center_offset)
             )
         ]
 
         for i in range(2):
             if players[i][1].__name__ == 'HumanPlayer':
-                self.players[i] = players[i][1](i, eventmanager, button_rects, self.switch_sides,
-                                                board_size, square_size, name=players[i][0])
+                self.players[i] = players[i][1](
+                    i,
+                    eventmanager,
+                    button_rects,
+                    self.switch_sides,
+                    board_size,
+                    square_size,
+                    name=players[i][0]
+                )
             else:
-                self.players[i] = players[i][1](i, name=players[i][0])
+                self.players[i] = players[i][1](
+                    i,
+                    name=players[i][0]
+                )
 
         self.scrollindex = 0
         self.captured_piece_nums = (0, 0)
@@ -180,22 +296,37 @@ class Game:
     def render_all(self):
         self.display.draw_board_background()
         self.display.draw_pieces(
-            self.current_state.board.get_pieces(self.current_state.current_player),
-            self.current_state.board.get_pieces(not self.current_state.current_player),
+            self.current_state.board.get_pieces(
+                self.current_state.current_player
+            ),
+            self.current_state.board.get_pieces(
+                not self.current_state.current_player
+            ),
             self.current_state.current_player,
             self.switch_sides,
             self.captured_piece_nums
         )
 
         self.display.draw_sidepanel_background()
-        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-        self.display.draw_console_messages(self.current_state.current_player, self.current_state.tie_request)
+        self.display.draw_history(
+            self.history.movelist_as_string(),
+            self.scrollindex
+        )
+        self.display.draw_console_messages(
+            self.players[self.current_state.current_player].name,
+            self.current_state.current_player,
+            self.current_state.tie_request
+        )
         self.display.render_to_screen()
 
     def show_move_anim(self, piece, move, captured_pieces):
-        player_pieces = self.current_state.board.get_pieces(self.current_state.current_player)
+        player_pieces = self.current_state.board.get_pieces(
+            self.current_state.current_player
+        )
         player_pieces.remove(piece)
-        opponent_pieces = self.current_state.board.get_pieces(not self.current_state.current_player)
+        opponent_pieces = self.current_state.board.get_pieces(
+            not self.current_state.current_player
+        )
         capt_piece_index = 0
 
         clock = pygame.time.Clock()
@@ -207,8 +338,10 @@ class Game:
             for i in range(Game.MOVE_TIME):
                 pygame.event.clear()
                 piece.pos = (
-                    x + dx * math.sin(float(i) / float(Game.MOVE_TIME) * math.pi / 2),
-                    y + dy * math.sin(float(i) / float(Game.MOVE_TIME) * math.pi / 2)
+                    x + dx
+                    * math.sin(float(i) / float(Game.MOVE_TIME) * math.pi / 2),
+                    y + dy
+                    * math.sin(float(i) / float(Game.MOVE_TIME) * math.pi / 2)
                 )
 
                 self.display.draw_board_background()
@@ -250,39 +383,69 @@ class Game:
                     self.winner = not self.current_state.current_player
                     break
                 if action == player.ACTION_TIE:
-                    if self.current_state.turn >= TIE_REQUEST_TURN and self.current_state.tie_request == \
+                    if self.current_state.turn >= TIE_REQUEST_TURN \
+                            and self.current_state.tie_request == \
                             (not self.current_state.current_player):
                         self.winner = -1
                         break
                     else:
-                        raise Exception("Tie requested on turn {0}".format(self.current_state.turn))
+                        raise Exception(
+                            "Tie requested on turn {0}".format(
+                                self.current_state.turn
+                            )
+                        )
 
             piece, move, tie_request = action
-            if not DraughtsRules.is_valid_move(piece, move, self.current_state, self.current_state.current_player):
+            if not DraughtsRules.is_valid_move(
+                    piece,
+                    move,
+                    self.current_state,
+                    self.current_state.current_player
+            ):
                 raise Exception('Invalid move')
 
             if tie_request:
                 if self.current_state.turn < TIE_REQUEST_TURN:
-                    raise Exception("Tie requested on turn {0}".format(self.current_state.turn))
+                    raise Exception(
+                        "Tie requested on turn {0}".format(
+                            self.current_state.turn
+                        )
+                    )
 
-                self.current_state.tie_request = self.current_state.current_player
+                self.current_state.tie_request = \
+                    self.current_state.current_player
 
             captured_pieces = DraughtsRules.get_captured_pieces(
                 piece,
                 move,
-                self.current_state.board.get_pieces(not self.current_state.current_player)
+                self.current_state.board.get_pieces(
+                    not self.current_state.current_player
+                )
             )
 
             self.captured_piece_nums = (
-                self.captured_piece_nums[0] + (self.current_state.current_player == 1) * len(captured_pieces),
-                self.captured_piece_nums[1] + (self.current_state.current_player == 0) * len(captured_pieces))
+                self.captured_piece_nums[0]
+                + (self.current_state.current_player == 1)
+                * len(captured_pieces),
+                self.captured_piece_nums[1]
+                + (self.current_state.current_player == 0)
+                * len(captured_pieces)
+            )
 
             if self.display_screen:
                 self.show_move_anim(copy.deepcopy(piece), move, captured_pieces)
 
             old_gamestate = copy.copy(self.current_state)
             self.current_state = self.current_state.get_successor(piece, move)
-            self.history.add_move(self.current_state, (piece.pos, move, len(captured_pieces) > 0), old_gamestate)
+            self.history.add_move(
+                self.current_state,
+                (
+                    piece.pos,
+                    move,
+                    len(captured_pieces) > 0
+                ),
+                old_gamestate
+            )
 
             if self.current_state.is_opponent_winning():
                 self.winner = not self.current_state.current_player
@@ -293,9 +456,9 @@ class Game:
 
             # switch players and set history panel to last move
             if self.current_state.current_player:
-                self.scrollindex = max(0, self.current_state.turn - 12)
+                self.scrollindex = max(0, self.current_state.turn - 13)
             else:
-                self.scrollindex = max(0, self.current_state.turn - 12)
+                self.scrollindex = max(0, self.current_state.turn - 14)
 
             if self.display_screen:
                 for event in pygame.event.get():
@@ -307,8 +470,15 @@ class Game:
 
         if self.display_screen:
             self.display.draw_sidepanel_background()
-            self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-            self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+            self.display.draw_history(
+                self.history.movelist_as_string(),
+                self.scrollindex
+            )
+            self.display.announce_winner(
+                self.winner >= 0,
+                self.players[self.winner].name,
+                self.winner
+            )
             self.display.render_to_screen()
 
             keepgoing = True
@@ -319,8 +489,10 @@ class Game:
 
                 selectedbutton = -1
                 for index in range(len(self.button_rects)):
-                    if self.button_rects[index][0] < mousepos[0] < self.button_rects[index][2] and \
-                            self.button_rects[index][1] < mousepos[1] < self.button_rects[index][3]:
+                    if self.button_rects[index][0] < mousepos[0] \
+                            < self.button_rects[index][2] \
+                            and self.button_rects[index][1] < mousepos[1] \
+                            < self.button_rects[index][3]:
                         selectedbutton = index
                         break
 
@@ -330,35 +502,74 @@ class Game:
                 if selectedbutton >= 0:
                     if not button_selected:
                         self.display.draw_sidepanel_background()
-                        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
-                        self.display.draw_button_overlay(self.button_rects[index])
+                        self.display.draw_history(
+                            self.history.movelist_as_string(),
+                            self.scrollindex
+                        )
+                        self.display.announce_winner(
+                            self.winner >= 0,
+                            self.players[self.winner].name,
+                            self.winner
+                        )
+                        self.display.draw_button_overlay(
+                            self.button_rects[index]
+                        )
                         self.display.render_to_screen()
 
                         button_selected = True
 
-                    if not mousebutton_pressed and any(pygame.mouse.get_pressed()):
+                    if not mousebutton_pressed \
+                            and any(pygame.mouse.get_pressed()):
                         mousebutton_pressed = True
                         if 0 <= index <= 2:
                             if index == 0:
-                                self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex - 1))
+                                self.scrollindex = max(
+                                    0,
+                                    min(
+                                        self.current_state.turn - 14,
+                                        self.scrollindex - 1
+                                    )
+                                )
                                 if self.display_screen:
-                                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                                    self.display.draw_button_overlay(self.button_rects[index])
+                                    self.display.draw_history(
+                                        self.history.movelist_as_string(),
+                                        self.scrollindex
+                                    )
+                                    self.display.draw_button_overlay(
+                                        self.button_rects[index]
+                                    )
                                     self.display.render_to_screen()
                             elif index == 1:
-                                self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex + 1))
+                                self.scrollindex = max(
+                                    0,
+                                    min(
+                                        self.current_state.turn - 14,
+                                        self.scrollindex + 1
+                                    )
+                                )
                                 if self.display_screen:
-                                    self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                                    self.display.draw_button_overlay(self.button_rects[index])
+                                    self.display.draw_history(
+                                        self.history.movelist_as_string(),
+                                        self.scrollindex
+                                    )
+                                    self.display.draw_button_overlay(
+                                        self.button_rects[index]
+                                    )
                                     self.display.render_to_screen()
                             else:
                                 keepgoing = False
                 else:
                     if button_selected:
                         self.display.draw_sidepanel_background()
-                        self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                        self.display.announce_winner(self.winner >= 0, self.players[self.winner].name, self.winner)
+                        self.display.draw_history(
+                            self.history.movelist_as_string(),
+                            self.scrollindex
+                        )
+                        self.display.announce_winner(
+                            self.winner >= 0,
+                            self.players[self.winner].name,
+                            self.winner
+                        )
                         self.display.render_to_screen()
 
                         button_selected = False
@@ -371,22 +582,42 @@ class Game:
 
     def notify(self, event):
         if event[0] == 'scroll':
-            self.scrollindex = max(0, min(self.current_state.turn - 13, self.scrollindex + event[1]))
+            self.scrollindex = max(
+                0,
+                min(
+                    self.current_state.turn - 14,
+                    self.scrollindex + event[1]
+                )
+            )
             if self.display_screen:
-                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
+                self.display.draw_history(
+                    self.history.movelist_as_string(),
+                    self.scrollindex
+                )
                 self.display.render_to_screen()
         elif event[0] == 'redraw_sidepanel':
             if self.display_screen:
                 self.display.draw_sidepanel_background()
-                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                self.display.draw_console_messages(self.current_state.current_player, self.current_state.tie_request)
+                self.display.draw_history(
+                    self.history.movelist_as_string(),
+                    self.scrollindex
+                )
+                self.display.draw_console_messages(
+                    self.players[self.current_state.current_player].name,
+                    self.current_state.current_player,
+                    self.current_state.tie_request
+                )
                 self.display.render_to_screen()
         elif event[0] == 'redraw_board':
             if self.display_screen:
                 self.display.draw_board_background()
                 self.display.draw_pieces(
-                    self.current_state.board.get_pieces(self.current_state.current_player),
-                    self.current_state.board.get_pieces(not self.current_state.current_player),
+                    self.current_state.board.get_pieces(
+                        self.current_state.current_player
+                    ),
+                    self.current_state.board.get_pieces(
+                        not self.current_state.current_player
+                    ),
                     self.current_state.current_player,
                     self.switch_sides,
                     self.captured_piece_nums
@@ -394,15 +625,25 @@ class Game:
                 self.display.render_to_screen()
         elif event[0] == 'highlight_spaces':
             if self.display_screen:
-                self.display.draw_highlighted_spaces(event[1],
-                                                     True if (self.switch_sides and
-                                                              self.current_state.current_player) else False)
+                self.display.draw_highlighted_spaces(
+                    event[1],
+                    True if
+                    (self.switch_sides and self.current_state.current_player)
+                    else False
+                )
                 self.display.render_to_screen()
         elif event[0] == 'highlight_button':
             if self.display_screen:
                 self.display.draw_sidepanel_background()
-                self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-                self.display.draw_console_messages(self.current_state.current_player, self.current_state.tie_request)
+                self.display.draw_history(
+                    self.history.movelist_as_string(),
+                    self.scrollindex
+                )
+                self.display.draw_console_messages(
+                    self.players[self.current_state.current_player].name,
+                    self.current_state.current_player,
+                    self.current_state.tie_request
+                )
                 self.display.draw_button_overlay(event[1])
                 self.display.render_to_screen()
 
@@ -432,8 +673,12 @@ def load_player(p, nographics):
         if not os.path.isdir(module_dir):
             continue
 
-        modulenames = (file for file in os.listdir(module_dir) if
-                       file.endswith('player.py') and not file.startswith('.') and not file.startswith('_'))
+        modulenames = (
+            file for file in os.listdir(module_dir) if
+            file.endswith('player.py') and
+            not file.startswith('.') and
+            not file.startswith('_')
+        )
         for modulename in modulenames:
             try:
                 module = __import__(modulename[:-3])
@@ -445,7 +690,8 @@ def load_player(p, nographics):
 
                 return getattr(module, p)
 
-    raise Exception("The player {0} is not specified in any *player.py".format(p))
+    raise Exception(
+        "The player {0} is not specified in any *player.py".format(p))
 
 
 def parse_players(player_args, nographics):
@@ -468,13 +714,15 @@ def parse_command_args(command_args):
     )
 
     # players
-    # args['players'] = [load_player(p, not command_args.disp_graphics) for p in command_args.players]
-    args['players'] = parse_players(command_args.players, not command_args.disp_graphics)
+    args['players'] = parse_players(
+        command_args.players,
+        not command_args.disp_graphics
+    )
 
     return args
 
 
-colors = {
+display_colors = {
     'background': (128, 128, 128, 255),
     'font': (0, 0, 0, 255),
     'square_light': (255, 238, 187, 255),
@@ -532,11 +780,11 @@ def main():
         clrs = parse_colors(color_parser.items('colors'))
 
         if clrs:
-            global colors
+            global display_colors
 
             for key, value in clrs.items():
-                if key in colors:
-                    colors[key] = value
+                if key in display_colors:
+                    display_colors[key] = value
     except configparser.NoSectionError:
         pass
 
