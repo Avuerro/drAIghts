@@ -1,9 +1,9 @@
 import argparse
 import configparser
+import copy
 import math
 import os
 from ast import literal_eval
-from copy import deepcopy
 
 import pygame
 
@@ -81,6 +81,9 @@ class Display:
         pygame.display.update()
 
 
+TIE_REQUEST_TURN = 40
+
+
 class Game:
     MOVE_TIME = 15
 
@@ -97,7 +100,7 @@ class Game:
             self.display = Display(colors)
 
         self.current_state = board.GameState()
-        self.history = board.History()
+        self.history = board.History(self.current_state)
 
         self.players = [None, None]
         eventmanager = humanplayer.EventManager(self)
@@ -208,8 +211,8 @@ class Game:
                 self.render_all()
 
             action = self.players[self.current_state.current_player].get_action(
-                deepcopy(self.current_state),
-                deepcopy(self.history)
+                copy.deepcopy(self.current_state),
+                copy.deepcopy(self.history)
             )
 
             if self.current_state.tie_request == board.INVALID_TIE_REQUEST:
@@ -220,16 +223,22 @@ class Game:
                 if action == player.ACTION_RESIGN:
                     print("{0} wins".format('Black' if not self.current_state.current_player else 'White'))
                 if action == player.ACTION_TIE:
-                    if self.current_state.turn >= 40:
+                    if self.current_state.turn >= TIE_REQUEST_TURN and self.current_state.tie_request == \
+                            (not self.current_state.current_player):
                         print(0.5)
                     else:
                         raise Exception("Tie requested on turn {0}".format(self.current_state.turn))
                 break
 
-            piece = action[0]
-            move = action[1]
+            piece, move, tie_request = action
             if not DraughtsRules.is_valid_move(piece, move, self.current_state, self.current_state.current_player):
                 raise Exception('Invalid move')
+
+            if tie_request:
+                if self.current_state.turn < TIE_REQUEST_TURN:
+                    raise Exception("Tie requested on turn {0}".format(self.current_state.turn))
+
+                self.current_state.tie_request = self.current_state.current_player
 
             captured_pieces = DraughtsRules.get_captured_pieces(
                 piece,
@@ -237,27 +246,25 @@ class Game:
                 self.current_state.board.get_pieces(not self.current_state.current_player)
             )
 
-            self.history.movelist.append((piece.pos, action[1], len(captured_pieces) > 0))
             self.captured_piece_nums = (
                 self.captured_piece_nums[0] + (self.current_state.current_player == 1) * len(captured_pieces),
                 self.captured_piece_nums[1] + (self.current_state.current_player == 0) * len(captured_pieces))
 
             if self.display_screen:
-                self.show_move_anim(deepcopy(piece), move, captured_pieces)
+                self.show_move_anim(copy.deepcopy(piece), move, captured_pieces)
 
+            old_gamestate = copy.copy(self.current_state)
             self.current_state = self.current_state.get_successor(piece, move)
+            self.history.add_move(self.current_state, (piece.pos, move, len(captured_pieces) > 0), old_gamestate)
 
             if self.current_state.is_opponent_winning():
                 # todo: end game and announce winner
                 print("{0} wins".format('Black' if not self.current_state.current_player else 'White'))
                 break
-
-            #     # todo: check if gamestate is a draw
-            #     # game is a draw if:
-            #     #   - both players have played 5 turns if piece count == 1 king vs 1 king + any piece
-            #     #   - both players have played 16 turns if piece count == 1 king vs 1 king + 2 pieces
-            #     #   - both players have played 25 consecutive turns with just kings without capturing anything
-            #     #   - the same configuration has appeared for the third time on the turn of the same player
+            elif self.current_state.is_draw(self.history):
+                # todo: end game and announce draw
+                print("Draw")
+                pass
 
             # switch players and set history panel to last move
             if self.current_state.current_player:
@@ -276,16 +283,6 @@ class Game:
             if self.display_screen:
                 self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
                 self.display.render_to_screen()
-        elif event[0] == 'tie':
-            if self.current_state.turn >= 40:
-                self.current_state.tie_request = self.current_state.current_player
-            else:
-                self.current_state.tie_request = board.INVALID_TIE_REQUEST
-
-            self.display.draw_sidepanel_background()
-            self.display.draw_history(self.history.movelist_as_string(), self.scrollindex)
-            self.display.draw_console_messages(self.current_state.current_player, self.current_state.tie_request)
-            self.display.render_to_screen()
         elif event[0] == 'redraw_sidepanel':
             if self.display_screen:
                 self.display.draw_sidepanel_background()

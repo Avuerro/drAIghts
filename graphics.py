@@ -357,14 +357,9 @@ class PanelGraphics:
             ]
         )
 
-        text = ''
-        if tie_request == board.INVALID_TIE_REQUEST:
-            text = 'Remise is niet mogelijk'
-        elif 0 <= tie_request <= 1:
-            if current_player == tie_request:
-                text = 'Remise voorgesteld'
-            else:
-                text = 'Accepteer remise?'
+        text = ""
+        if tie_request == (not current_player):
+            text = "Accepteer remise?"
 
         text_surf = self.font.render(text, True, self.colors['textcolor'])
         surf.blit(

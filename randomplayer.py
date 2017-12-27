@@ -8,4 +8,4 @@ class RandomPlayer(player.Player):
         possible_moves = DraughtsRules.get_all_possible_moves(current_state, self.player_id)
 
         rand_movelist = random.choice(possible_moves)
-        return rand_movelist[0], random.choice(rand_movelist[1])
+        return rand_movelist[0], random.choice(rand_movelist[1]), False

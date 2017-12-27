@@ -2,6 +2,7 @@ import pygame
 
 from draughtsrules import DraughtsRules
 import player
+from draights import TIE_REQUEST_TURN
 
 
 class EventManager:
@@ -59,8 +60,8 @@ class HumanPlayer(player.Player):
         player_pieces = currentstate.board.get_pieces(self.player_id)
         all_possible_moves = DraughtsRules.get_all_possible_moves(currentstate, self.player_id)
         highlighted_moves = None
-
         tie_request = False
+
         while True:
             mousepos = pygame.mouse.get_pos()
 
@@ -79,7 +80,7 @@ class HumanPlayer(player.Player):
                         elif rect_index == 2:
                             if currentstate.tie_request == (not self.player_id):
                                 return player.ACTION_TIE
-                            else:
+                            elif currentstate.turn >= TIE_REQUEST_TURN:
                                 tie_request = True
                         elif rect_index == 3:
                             return player.ACTION_RESIGN
@@ -121,7 +122,7 @@ class HumanPlayer(player.Player):
                         else:
                             for move in highlighted_moves[1]:
                                 if pos == move[-1]:
-                                    return highlighted_moves[0], move
+                                    return highlighted_moves[0], move, tie_request
 
                             if not any(pos == piece.pos for piece in player_pieces):
                                 highlighted_moves = None
