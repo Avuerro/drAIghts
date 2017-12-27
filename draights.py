@@ -465,6 +465,8 @@ class Game:
                     if event.type == pygame.QUIT:
                         self.keepgoing = False
 
+        self.render_all()
+
         for p in self.players:
             p.end_game(self.history, self.winner)
 
