@@ -4,6 +4,8 @@ import copy
 import math
 import os
 from ast import literal_eval
+import pickle
+import time
 
 import pygame
 
@@ -203,13 +205,15 @@ class Game:
     MOVE_TIME = 15
 
     def __init__(self,
-                 players=None,
+                 players,
                  disp_graphics=True,
                  switch_sides=False,
+                 record=False
                  ):
 
         self.display_screen = disp_graphics
         self.switch_sides = switch_sides
+        self.record = record
 
         if self.display_screen:
             self.display = Display(display_colors)
@@ -360,6 +364,18 @@ class Game:
                 opponent_pieces.remove(captured_pieces[capt_piece_index])
                 capt_piece_index += 1
 
+    def save_history_to_file(self):
+        filename = '-'.join(str(t) for t in time.localtime()[1:6]) + '.bin'
+        with open(filename, 'wb') as file:
+            pickle.dump(
+                {
+                    'player1_name': self.players[0].name,
+                    'player2_name': self.players[1].name,
+                    'history': self.history
+                },
+                file
+            )
+
     def run(self):
         self.keepgoing = True
 
@@ -469,6 +485,9 @@ class Game:
 
         for p in self.players:
             p.end_game(self.history, self.winner)
+
+        if self.record:
+            self.save_history_to_file()
 
         if self.display_screen:
             self.display.draw_sidepanel_background()
@@ -712,7 +731,8 @@ def parse_players(player_args, nographics):
 def parse_command_args(command_args):
     args = dict(
         disp_graphics=command_args.disp_graphics,
-        switch_sides=command_args.switch_sides
+        switch_sides=command_args.switch_sides,
+        record=command_args.record
     )
 
     # players
@@ -766,11 +786,43 @@ def main():
         '-p',
         '--players',
         dest='players',
-        type=str,
         metavar='PLAYER',
         help="The player objects to be used.",
         nargs=2,
         default=['HumanPlayer', 'HumanPlayer']
+    )
+    # todo: add --player1 and --player2 arguments
+    parser.add_argument(
+        '-p1',
+        dest='player1_args',
+        metavar='ARGUMENTS',
+        help="Arguments for player 1 (default is white)",
+        nargs=1,
+        default=None
+    )
+    parser.add_argument(
+        '-p2',
+        dest='player2_args',
+        metavar='ARGUMENTS',
+        help="Arguments for player 2 (default is black)",
+        nargs=1,
+        default=None
+    )
+    parser.add_argument(
+        '-r',
+        dest='record',
+        action='store_true',
+        help="Write game history to a file named by the time it was recorded",
+        default=False
+    )
+    # todo: implement replay argument
+    parser.add_argument(
+        '--replay',
+        dest='replay_file',
+        metavar='FILE',
+        help="A file to replay",
+        nargs=1,
+        default=None
     )
 
     command_args = parser.parse_args()
