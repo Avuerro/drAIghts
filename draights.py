@@ -13,6 +13,7 @@ import board
 import graphics
 import humanplayer
 import player
+import replayplayer
 from draughtsrules import DraughtsRules
 
 
@@ -374,7 +375,7 @@ class Game:
                 {
                     'player1_name': self.players[0].name,
                     'player2_name': self.players[1].name,
-                    'history': self.history
+                    'movelist': self.history.movelist
                 },
                 file
             )
@@ -475,7 +476,7 @@ class Game:
             self.history.add_move(
                 self.current_state,
                 board.HistoryMove(
-                    self.current_state.current_player,
+                    old_gamestate.current_player,
                     piece,
                     move,
                     len(captured_pieces) > 0,
@@ -771,7 +772,7 @@ def parse_players(player_names, player_options, nographics):
         if '=' in player_names[index]:
             name, classname = player_names[index].split('=')
         else:
-            name, classname = None, player_names[index].split('=')
+            name, classname = None, player_names[index]
 
         players.append(
             (
@@ -798,6 +799,35 @@ def parse_command_args(command_args):
             not command_args.disp_graphics
         )
     )
+
+    if command_args.replay_file:
+        with open(command_args.replay_file, "rb") as replayfile:
+            replaydata = pickle.load(replayfile)
+
+        args['players'] = [
+            (
+                replaydata['player1_name'],
+                replayplayer.ReplayPlayer,
+                {
+                    'movelist': [
+                        move
+                        for move in replaydata['movelist']
+                        if move.player_id == 0
+                    ]
+                }
+            ),
+            (
+                replaydata['player2_name'],
+                replayplayer.ReplayPlayer,
+                {
+                    'movelist': [
+                        move
+                        for move in replaydata['movelist']
+                        if move.player_id == 1
+                    ]
+                }
+            )
+        ]
 
     return args
 
@@ -870,7 +900,6 @@ def main():
         help="Write game history to a file named by the time it was recorded",
         default=False
     )
-    # todo: implement replay argument
     parser.add_argument(
         '--replay',
         dest='replay_file',
