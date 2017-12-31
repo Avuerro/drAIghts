@@ -227,6 +227,26 @@ class GameState:
         return newstate
 
 
+class HistoryMove:
+    def __init__(
+            self,
+            player_id,
+            piece=None,
+            move=None,
+            captured_pieces=False,
+            proposed_tie=False,
+            accepted_tie=False,
+            resigned=False
+    ):
+        self.player_id = player_id
+        self.piece = piece
+        self.move = move
+        self.captured_pieces = captured_pieces
+        self.proposed_tie = proposed_tie
+        self.accepted_tie = accepted_tie
+        self.resigned = resigned
+
+
 class History:
     def __init__(self, initial_state):
         self.movelist = []
@@ -252,15 +272,16 @@ class History:
 
     def convert_move_to_str(self, move):
         return '{0}{1}{2}'.format(
-            self.convert_pos_to_index(move[0]),
-            'x' if move[2] else '-',
-            self.convert_pos_to_index(move[1][-1])
+            self.convert_pos_to_index(move.piece.pos),
+            'x' if move.captured_pieces else '-',
+            self.convert_pos_to_index(move.move[-1])
         )
 
     def movelist_as_string(self):
-        str_movelist = [' '.join(self.convert_move_to_str(move)
-                                 for move in moves)
-                        for moves in self.get_moves_in_pairs()]
+        str_movelist = [
+            ' '.join(self.convert_move_to_str(move) for move in moves)
+            for moves in self.get_moves_in_pairs()
+        ]
 
         return str_movelist
 
@@ -286,7 +307,7 @@ class History:
                     and pieces[opponent_index][0].is_king:
                 self.onevs3_moves += 1
 
-        if old_gamestate.board.get_piece_status(move[0]) and not move[2]:
+        if move.piece.is_king and not move.captured_pieces:
             self.consecutive_moves_with_kings += 1
         else:
             self.consecutive_moves_with_kings = 0

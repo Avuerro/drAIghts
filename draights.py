@@ -399,12 +399,28 @@ class Game:
 
             if isinstance(action, int):
                 if action == player.ACTION_RESIGN:
+                    self.history.add_move(
+                        self.current_state,
+                        board.HistoryMove(
+                            player_id=self.current_state.current_player,
+                            resigned=True
+                        ),
+                        self.current_state
+                    )
                     self.winner = not self.current_state.current_player
                     break
                 if action == player.ACTION_TIE:
                     if self.current_state.turn >= TIE_REQUEST_TURN \
                             and self.current_state.tie_request == \
                             (not self.current_state.current_player):
+                        self.history.add_move(
+                            self.current_state,
+                            board.HistoryMove(
+                                player_id=self.current_state.current_player,
+                                accepted_tie=True
+                            ),
+                            self.current_state
+                        )
                         self.winner = -1
                         break
                     else:
@@ -458,10 +474,12 @@ class Game:
             self.current_state = self.current_state.get_successor(piece, move)
             self.history.add_move(
                 self.current_state,
-                (
-                    piece.pos,
+                board.HistoryMove(
+                    self.current_state.current_player,
+                    piece,
                     move,
-                    len(captured_pieces) > 0
+                    len(captured_pieces) > 0,
+                    tie_request
                 ),
                 old_gamestate
             )
