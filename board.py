@@ -258,10 +258,11 @@ class History:
     def get_moves_in_pairs(self):
         index = 0
         while index < len(self.movelist):
-            if index + 1 < len(self.movelist):
+            if index + 1 < len(self.movelist) and \
+                    self.movelist[index + 1].move:
                 yield (self.movelist[index], self.movelist[index + 1])
                 index += 1
-            else:
+            elif self.movelist[index].move:
                 yield (self.movelist[index],)
 
             index += 1
@@ -293,24 +294,27 @@ class History:
             old_gamestate.board.get_pieces(1)
         ]
 
-        for player_index in range(2):
-            opponent_index = not player_index
+        if move.move:
+            for player_index in range(2):
+                opponent_index = not player_index
 
-            if len(pieces[player_index]) == 2 \
-                    and len(pieces[opponent_index]) == 1 \
-                    and any(piece.is_king for piece in pieces[player_index]) \
-                    and pieces[opponent_index][0].is_king:
-                self.onevs2_moves += 1
-            elif len(pieces[player_index]) == 3 \
-                    and len(pieces[opponent_index]) == 1 \
-                    and any(piece.is_king for piece in pieces[player_index]) \
-                    and pieces[opponent_index][0].is_king:
-                self.onevs3_moves += 1
+                if len(pieces[player_index]) == 2 \
+                        and len(pieces[opponent_index]) == 1 \
+                        and any(piece.is_king
+                                for piece in pieces[player_index]) \
+                        and pieces[opponent_index][0].is_king:
+                    self.onevs2_moves += 1
+                elif len(pieces[player_index]) == 3 \
+                        and len(pieces[opponent_index]) == 1 \
+                        and any(piece.is_king
+                                for piece in pieces[player_index]) \
+                        and pieces[opponent_index][0].is_king:
+                    self.onevs3_moves += 1
 
-        if move.piece.is_king and not move.captured_pieces:
-            self.consecutive_moves_with_kings += 1
-        else:
-            self.consecutive_moves_with_kings = 0
+            if move.piece.is_king and not move.captured_pieces:
+                self.consecutive_moves_with_kings += 1
+            else:
+                self.consecutive_moves_with_kings = 0
 
         num_gamestate = 1
         for state in self.gamestates:
