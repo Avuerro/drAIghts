@@ -3,9 +3,9 @@ import configparser
 import copy
 import math
 import os
-from ast import literal_eval
 import pickle
 import time
+from ast import literal_eval
 
 import pygame
 
@@ -204,12 +204,13 @@ TIE_REQUEST_TURN = 40
 class Game:
     MOVE_TIME = 15
 
-    def __init__(self,
-                 players,
-                 disp_graphics=True,
-                 switch_sides=False,
-                 record=False
-                 ):
+    def __init__(
+            self,
+            players,
+            disp_graphics=True,
+            switch_sides=False,
+            record=False
+    ):
 
         self.display_screen = disp_graphics
         self.switch_sides = switch_sides
@@ -284,12 +285,14 @@ class Game:
                     self.switch_sides,
                     board_size,
                     square_size,
-                    name=players[i][0]
+                    name=players[i][0],
+                    **players[i][2]
                 )
             else:
                 self.players[i] = players[i][1](
                     i,
-                    name=players[i][0]
+                    name=players[i][0],
+                    **players[i][2]
                 )
 
         self.scrollindex = 0
@@ -489,6 +492,8 @@ class Game:
         if self.record:
             self.save_history_to_file()
 
+        # todo: fix game quitting immediately if human player resigns
+        # use MOUSE_DOWN events instead
         if self.display_screen:
             self.display.draw_sidepanel_background()
             self.display.draw_history(
@@ -712,18 +717,51 @@ def load_player(p, nographics):
                 return getattr(module, p)
 
     raise Exception(
-        "The player {0} is not specified in any *player.py".format(p))
+        "The player {0} is not specified in any *player.py".format(p)
+    )
 
 
-def parse_players(player_args, nographics):
-    players = []
-    for p in player_args:
-        if '=' in p:
-            key, val = p.split('=')
+def parse_playeropts(optionstr):
+    if optionstr is None:
+        return {}
+
+    if ',' in optionstr:
+        options = optionstr.split(',')
+    else:
+        options = [optionstr]
+
+    arguments = {}
+    for option in options:
+        if '=' in option:
+            key, val = option.split('=')
+
+            try:
+                val = literal_eval(val)
+            except SyntaxError or ValueError:
+                pass
         else:
-            key, val = "", p
+            key, val = option, True
 
-        players.append((key, load_player(val, nographics)))
+        arguments[key] = val
+
+    return arguments
+
+
+def parse_players(player_names, player_options, nographics):
+    players = []
+    for index in range(len(player_names)):
+        if '=' in player_names[index]:
+            name, classname = player_names[index].split('=')
+        else:
+            name, classname = None, player_names[index].split('=')
+
+        players.append(
+            (
+                name,
+                load_player(classname, nographics),
+                parse_playeropts(player_options[index])
+            )
+        )
 
     return players
 
@@ -732,13 +770,15 @@ def parse_command_args(command_args):
     args = dict(
         disp_graphics=command_args.disp_graphics,
         switch_sides=command_args.switch_sides,
-        record=command_args.record
-    )
-
-    # players
-    args['players'] = parse_players(
-        command_args.players,
-        not command_args.disp_graphics
+        record=command_args.record,
+        players=parse_players(
+            command_args.players,
+            (
+                command_args.player1_args,
+                command_args.player2_args
+            ),
+            not command_args.disp_graphics
+        )
     )
 
     return args
@@ -791,21 +831,18 @@ def main():
         nargs=2,
         default=['HumanPlayer', 'HumanPlayer']
     )
-    # todo: add --player1 and --player2 arguments
     parser.add_argument(
         '-p1',
         dest='player1_args',
         metavar='ARGUMENTS',
-        help="Arguments for player 1 (default is white)",
-        nargs=1,
+        help="Extra arguments to pass to player 1 (default: white)",
         default=None
     )
     parser.add_argument(
         '-p2',
         dest='player2_args',
         metavar='ARGUMENTS',
-        help="Arguments for player 2 (default is black)",
-        nargs=1,
+        help="Extra arguments to pass to player 2 (default: black)",
         default=None
     )
     parser.add_argument(
@@ -821,7 +858,6 @@ def main():
         dest='replay_file',
         metavar='FILE',
         help="A file to replay",
-        nargs=1,
         default=None
     )
 

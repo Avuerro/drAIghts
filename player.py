@@ -3,10 +3,10 @@ ACTION_TIE = 1
 
 
 class Player:
-    def __init__(self, player_id, name=""):
+    def __init__(self, player_id, name=None):
         self.player_id = player_id
 
-        if name != "":
+        if name is not None:
             self.name = name
         else:
             self.name = "Player"

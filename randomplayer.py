@@ -4,8 +4,8 @@ import random
 
 
 class RandomPlayer(player.Player):
-    def __init__(self, player_id, name=""):
-        if name == "":
+    def __init__(self, player_id, name=None):
+        if name is None:
             name = "Random"
 
         super(RandomPlayer, self).__init__(player_id, name)

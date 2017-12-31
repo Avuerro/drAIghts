@@ -34,9 +34,9 @@ class HumanPlayer(player.Player):
             switch_sides,
             board_size,
             square_size,
-            name=""
+            name=None
     ):
-        if name == "":
+        if name is None:
             name = "Human"
 
         super(HumanPlayer, self).__init__(player_id, name)
