@@ -398,49 +398,47 @@ class Game:
             if self.current_state.tie_request == board.INVALID_TIE_REQUEST:
                 self.current_state.tie_request = board.NO_TIE_REQUEST
 
-            if isinstance(action, int):
-                if action == player.ACTION_RESIGN:
+            if action.resign:
+                self.history.add_move(
+                    self.current_state,
+                    board.HistoryMove(
+                        player_id=self.current_state.current_player,
+                        resign=True
+                    ),
+                    self.current_state
+                )
+                self.winner = not self.current_state.current_player
+                break
+            if action.accept_tie:
+                if self.current_state.turn >= TIE_REQUEST_TURN \
+                        and self.current_state.tie_request == \
+                        (not self.current_state.current_player):
                     self.history.add_move(
                         self.current_state,
                         board.HistoryMove(
                             player_id=self.current_state.current_player,
-                            resigned=True
+                            accept_tie=True
                         ),
                         self.current_state
                     )
-                    self.winner = not self.current_state.current_player
+                    self.winner = -1
                     break
-                if action == player.ACTION_TIE:
-                    if self.current_state.turn >= TIE_REQUEST_TURN \
-                            and self.current_state.tie_request == \
-                            (not self.current_state.current_player):
-                        self.history.add_move(
-                            self.current_state,
-                            board.HistoryMove(
-                                player_id=self.current_state.current_player,
-                                accepted_tie=True
-                            ),
-                            self.current_state
+                else:
+                    raise Exception(
+                        "Tie requested on turn {0}".format(
+                            self.current_state.turn
                         )
-                        self.winner = -1
-                        break
-                    else:
-                        raise Exception(
-                            "Tie requested on turn {0}".format(
-                                self.current_state.turn
-                            )
-                        )
+                    )
 
-            piece, move, tie_request = action
             if not DraughtsRules.is_valid_move(
-                    piece,
-                    move,
+                    action.piece,
+                    action.move,
                     self.current_state,
                     self.current_state.current_player
             ):
                 raise Exception('Invalid move')
 
-            if tie_request:
+            if action.request_tie:
                 if self.current_state.turn < TIE_REQUEST_TURN:
                     raise Exception(
                         "Tie requested on turn {0}".format(
@@ -452,8 +450,8 @@ class Game:
                     self.current_state.current_player
 
             captured_pieces = DraughtsRules.get_captured_pieces(
-                piece,
-                move,
+                action.piece,
+                action.move,
                 self.current_state.board.get_pieces(
                     not self.current_state.current_player
                 )
@@ -469,18 +467,25 @@ class Game:
             )
 
             if self.display_screen:
-                self.show_move_anim(copy.deepcopy(piece), move, captured_pieces)
+                self.show_move_anim(
+                    copy.deepcopy(action.piece),
+                    action.move,
+                    captured_pieces
+                )
 
             old_gamestate = copy.copy(self.current_state)
-            self.current_state = self.current_state.get_successor(piece, move)
+            self.current_state = self.current_state.get_successor(
+                action.piece,
+                action.move
+            )
             self.history.add_move(
                 self.current_state,
                 board.HistoryMove(
                     old_gamestate.current_player,
-                    piece,
-                    move,
+                    action.piece,
+                    action.move,
                     len(captured_pieces) > 0,
-                    tie_request
+                    action.request_tie
                 ),
                 old_gamestate
             )

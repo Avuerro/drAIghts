@@ -17,4 +17,8 @@ class RandomPlayer(player.Player):
         )
 
         rand_movelist = random.choice(possible_moves)
-        return rand_movelist[0], random.choice(rand_movelist[1]), False
+        return player.Move(
+            piece=rand_movelist[0],
+            move=random.choice(rand_movelist[1]),
+            request_tie=False
+        )

@@ -14,8 +14,12 @@ class ReplayPlayer(player.Player):
         currentmove = self.movelist.pop(0)
 
         if currentmove.resigned:
-            return player.ACTION_RESIGN
+            return player.Move(resign=True)
         if currentmove.accepted_tie:
-            return player.ACTION_TIE
+            return player.Move(accept_tie=True)
 
-        return currentmove.piece, currentmove.move, currentmove.proposed_tie
+        return player.Move(
+            piece=currentmove.piece,
+            move=currentmove.move,
+            request_tie=currentmove.request_tie
+        )

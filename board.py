@@ -234,17 +234,17 @@ class HistoryMove:
             piece=None,
             move=None,
             captured_pieces=False,
-            proposed_tie=False,
-            accepted_tie=False,
-            resigned=False
+            request_tie=False,
+            accept_tie=False,
+            resign=False
     ):
         self.player_id = player_id
         self.piece = piece
         self.move = move
         self.captured_pieces = captured_pieces
-        self.proposed_tie = proposed_tie
-        self.accepted_tie = accepted_tie
-        self.resigned = resigned
+        self.proposed_tie = request_tie
+        self.accepted_tie = accept_tie
+        self.resigned = resign
 
 
 class History:

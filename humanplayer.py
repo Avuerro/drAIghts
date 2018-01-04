@@ -77,7 +77,7 @@ class HumanPlayer(player.Player):
             self.player_id
         )
         highlighted_moves = None
-        tie_request = False
+        request_tie = False
 
         while True:
             mousepos = pygame.mouse.get_pos()
@@ -97,11 +97,11 @@ class HumanPlayer(player.Player):
                             self.manager.scroll(1)
                         elif rect_index == 2:
                             if currentstate.tie_request == (not self.player_id):
-                                return player.ACTION_TIE
+                                return player.Move(accept_tie=True)
                             elif currentstate.turn >= TIE_REQUEST_TURN:
-                                tie_request = True
+                                request_tie = True
                         elif rect_index == 3:
-                            return player.ACTION_RESIGN
+                            return player.Move(resign=True)
             elif button_selected \
                     and not any(rect[0] < mousepos[0] < rect[2]
                                 and rect[1] < mousepos[1] < rect[3]
@@ -119,7 +119,7 @@ class HumanPlayer(player.Player):
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return player.ACTION_RESIGN
+                    return player.Move(accept_tie=True)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = self.get_board_pos(
                         event.pos,
@@ -162,9 +162,11 @@ class HumanPlayer(player.Player):
                         else:
                             for move in highlighted_moves[1]:
                                 if pos == move[-1]:
-                                    return highlighted_moves[0], \
-                                           move, \
-                                           tie_request
+                                    return player.Move(
+                                        highlighted_moves[0],
+                                        move,
+                                        request_tie=request_tie
+                                    )
 
                             if not any(pos == piece.pos
                                        for piece in player_pieces):

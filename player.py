@@ -1,5 +1,17 @@
-ACTION_RESIGN = 0
-ACTION_TIE = 1
+class Move:
+    def __init__(
+            self,
+            piece=None,
+            move=None,
+            request_tie=False,
+            resign=False,
+            accept_tie=False
+    ):
+        self.piece = piece
+        self.move = move
+        self.request_tie = request_tie
+        self.resign = resign
+        self.accept_tie = accept_tie
 
 
 class Player:
