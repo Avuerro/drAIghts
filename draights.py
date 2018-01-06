@@ -12,7 +12,6 @@ import pygame
 import board
 import graphics
 import humanplayer
-import player
 import replayplayer
 from draughtsrules import DraughtsRules
 
@@ -407,7 +406,7 @@ class Game:
                     ),
                     self.current_state
                 )
-                self.winner = not self.current_state.current_player
+                self.winner = int(not self.current_state.current_player)
                 break
             if action.accept_tie:
                 if self.current_state.turn >= TIE_REQUEST_TURN \
@@ -491,7 +490,7 @@ class Game:
             )
 
             if self.current_state.is_opponent_winning():
-                self.winner = not self.current_state.current_player
+                self.winner = int(not self.current_state.current_player)
                 break
             elif self.current_state.is_draw(self.history):
                 self.winner = -1
@@ -508,7 +507,8 @@ class Game:
                     if event.type == pygame.QUIT:
                         self.keepgoing = False
 
-        self.render_all()
+        if self.display_screen:
+            self.render_all()
 
         for p in self.players:
             p.end_game(self.history, self.winner)
