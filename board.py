@@ -242,7 +242,7 @@ class HistoryMove:
         self.piece = piece
         self.move = move
         self.captured_pieces = captured_pieces
-        self.proposed_tie = request_tie
+        self.request_tie = request_tie
         self.accepted_tie = accept_tie
         self.resigned = resign
 
@@ -252,7 +252,7 @@ class History:
         self.movelist = []
         self.gamestates = [(initial_state, 1)]
         self.onevs2_moves = 0  # draw if 10
-        self.onevs3_moves = 30  # draw if 32
+        self.onevs3_moves = 0  # draw if 32
         self.consecutive_moves_with_kings = 0  # draw if 50
 
     def get_moves_in_pairs(self):
