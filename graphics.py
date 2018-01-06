@@ -488,7 +488,7 @@ class PanelGraphics:
         surf = pygame.Surface(self.size, pygame.SRCALPHA, 32)
         surf.fill((255, 255, 255, 0))
 
-        player_message = '{0} aan zet'.format(
+        player_message = '{0} is aan zet'.format(
             name
         )
         if current_player:
