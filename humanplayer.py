@@ -1,8 +1,8 @@
 import pygame
 
-from draughtsrules import DraughtsRules
 import player
-from draights import TIE_REQUEST_TURN
+from draughtsrules import DraughtsRules
+from draughtsrules import TIE_REQUEST_TURN
 
 
 class EventManager:

@@ -14,6 +14,7 @@ import graphics
 import humanplayer
 import replayplayer
 from draughtsrules import DraughtsRules
+from draughtsrules import TIE_REQUEST_TURN
 
 
 class Display:
@@ -196,9 +197,6 @@ class Display:
     def render_to_screen(self):
         self.window.blit(self.background, (0, 0))
         pygame.display.update()
-
-
-TIE_REQUEST_TURN = 40
 
 
 class Game:

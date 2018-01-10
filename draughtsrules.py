@@ -5,6 +5,8 @@ directions = (
     (1, 1)  # bottom left
 )
 
+TIE_REQUEST_TURN = 40
+
 
 class DraughtsRules:
     @staticmethod
