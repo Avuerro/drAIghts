@@ -1,6 +1,7 @@
+import random
+
 import player
 from draughtsrules import DraughtsRules
-import random
 
 
 class RandomPlayer(player.Player):
