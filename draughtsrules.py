@@ -9,8 +9,13 @@ TIE_REQUEST_TURN = 40
 
 
 class DraughtsRules:
+    """An object with methods that calculate moves etc. given information
+
+    All methods are static, so no need to initialize this class
+    """
+
     @staticmethod
-    def get_moves(
+    def _get_moves(
             moves,
             piece_is_king,
             player_piece_positions,
@@ -56,7 +61,7 @@ class DraughtsRules:
 
                         newmoves = moves[-1]
 
-                        newmoves = DraughtsRules.get_moves(
+                        newmoves = DraughtsRules._get_moves(
                             newmoves,
                             piece_is_king,
                             player_piece_positions,
@@ -145,7 +150,7 @@ class DraughtsRules:
                         if move not in captured_piece_positions:
                             moves.append([move])
                             newmoves = [move]
-                            newmoves = DraughtsRules.get_moves(
+                            newmoves = DraughtsRules._get_moves(
                                 newmoves,
                                 piece_is_king,
                                 player_piece_positions,
@@ -168,24 +173,24 @@ class DraughtsRules:
                 return moves[1:]
 
     @staticmethod
-    def flatten_movelist(moves):
+    def _flatten_movelist(moves):
         if isinstance(moves, list):
             if len(moves) == 2 \
                     and not isinstance(moves[0], list) \
                     and isinstance(moves[1], list):
                 flattenedlist = [moves[0]]
-                flattenedlist.extend(DraughtsRules.flatten_movelist(moves[1]))
+                flattenedlist.extend(DraughtsRules._flatten_movelist(moves[1]))
                 return flattenedlist
             else:
                 flattenedlist = []
                 for move in moves:
-                    flattenedlist.append(DraughtsRules.flatten_movelist(move))
+                    flattenedlist.append(DraughtsRules._flatten_movelist(move))
                 return flattenedlist
 
         return moves
 
     @staticmethod
-    def get_longest_moves(action_list, moves):
+    def _get_longest_moves(action_list, moves):
         action_list = list(action_list)
         possible_moves = []
         branched = False
@@ -193,7 +198,7 @@ class DraughtsRules:
             if isinstance(moves[index], list):
                 branched = True
                 possible_moves.extend(
-                    DraughtsRules.get_longest_moves(
+                    DraughtsRules._get_longest_moves(
                         action_list,
                         moves[index]
                     )
@@ -219,14 +224,24 @@ class DraughtsRules:
             opponent_pieces,
             player_id
     ):
-        player_piece_positions = [p.pos for p in player_pieces]
+        """Get all legal moves for a given piece.
+
+        :param piece: a board.Piece object
+        :param player_pieces: a list of board.Piece objects with player pieces
+        :param opponent_pieces: a list of board.Piece objects with pieces
+            from the opponent
+        :param player_id: the player ID of the current player
+        """
+
+        player_piece_positions = [p.pos for p in player_pieces
+                                  if p is not piece]
         opponent_piece_positions = [p.pos for p in opponent_pieces]
         forward_directions = directions[2 * player_id:2 * player_id + 2]
 
-        moves = DraughtsRules.get_longest_moves(
+        moves = DraughtsRules._get_longest_moves(
             [],
-            DraughtsRules.flatten_movelist(
-                DraughtsRules.get_moves(
+            DraughtsRules._flatten_movelist(
+                DraughtsRules._get_moves(
                     [piece.pos],
                     piece.is_king,
                     player_piece_positions,
@@ -243,6 +258,17 @@ class DraughtsRules:
 
     @staticmethod
     def get_orientation(startpos, endpos):
+        """Return a tuple with the direction of the end position
+            relative to the starting position.
+
+        While this method will not raise an exception if the end position
+        is not reachable from the starting position, the return value will
+        not be correct either.
+
+        :param startpos: a tuple (x, y)
+        :param endpos: a tuple (x, y)
+        """
+
         dx = 1 if startpos[0] < endpos[0] else -1
         dy = 1 if startpos[1] < endpos[1] else -1
 
@@ -250,6 +276,16 @@ class DraughtsRules:
 
     @staticmethod
     def get_captured_pieces(piece, move, opponent_pieces):
+        """Return a list of captured board.Piece objects captured by a move.
+
+        This method does not check for the validity of the move in question.
+
+        :param piece: a board.Piece object
+        :param move: a list of locations that the piece stops at while moving
+        :param opponent_pieces: a list of board.Piece objects that belong to the
+            opponent
+        """
+
         pos = piece.pos
         captured_pieces = []
         opponent_pieces = opponent_pieces[:]
@@ -257,6 +293,11 @@ class DraughtsRules:
             direction = DraughtsRules.get_orientation(pos, movepos)
 
             while pos != movepos:
+                if pos[0] < 0 or pos[0] > 9 or pos[1] < 0 or pos[1] > 9:
+                    raise Exception("Position out of bounds: {0}".format(
+                        pos
+                    ))
+
                 for opponent_piece in opponent_pieces:
                     if pos == opponent_piece.pos:
                         captured_pieces.append(opponent_piece)
@@ -268,7 +309,15 @@ class DraughtsRules:
         return captured_pieces
 
     @staticmethod
-    def get_all_possible_moves(currentstate, player_id):
+    def get_all_possible_moves(currentstate):
+        """Return a list of pieces with all their legal moves.
+
+        The list returned consists of tuples (Piece, [moves])
+
+        :param currentstate: The current gamestate
+        """
+
+        player_id = currentstate.current_player
         player_pieces = currentstate.board.get_pieces(player_id)
         opponent_pieces = currentstate.board.get_pieces(not player_id)
 
@@ -298,15 +347,29 @@ class DraughtsRules:
         return all_moves
 
     @staticmethod
-    def is_valid_move(piece, move, currentstate, player_id):
-        player_pieces = currentstate.board.get_pieces(player_id)
+    def is_valid_move(piece, move, currentstate):
+        """Check if a given move is valid.
+
+        Validity of moves is checked by comparing with a list of legal moves
+        generated by this object, so moves obtained by calling
+        DraughtsRules.get_piece_possible_moves() or
+        DraughtsRules.get_all_possible_moves() don't have to be checked.
+
+        :param piece: a board.Piece object
+        :param move: a list of positions to visit
+        :param currentstate: the current gamestate
+        """
+
+        player_pieces = currentstate.board.get_pieces(
+            currentstate.current_player
+        )
 
         if piece in player_pieces:
             possible_moves = DraughtsRules.get_piece_possible_moves(
                 piece,
                 player_pieces,
-                currentstate.board.get_pieces(not player_id),
-                player_id
+                currentstate.board.get_pieces(not currentstate.current_player),
+                currentstate.current_player
             )
 
             return move in possible_moves

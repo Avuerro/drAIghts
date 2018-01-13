@@ -1,3 +1,9 @@
+"""The main DrAIghts module.
+
+Everything should be usable by either running it with command-line arguments,
+or by creating a Game object and calling its run method
+"""
+
 import argparse
 import configparser
 import copy
@@ -200,6 +206,12 @@ class Display:
 
 
 class Game:
+    """The object that runs a draughts match.
+
+    To run a match, create the object then call its run method. To run multiple
+    matches, create separate objects.
+    """
+
     MOVE_TIME = 15
 
     def __init__(
@@ -209,6 +221,19 @@ class Game:
             switch_sides=False,
             record=False
     ):
+        """Initialize the Game object.
+
+        :param players: an iterable of length 2 of which each element is a tuple
+            (player_name, player_constructor, optional_arguments)
+                player_name -- a string to use as the player name, or None if
+                the default name is to be used
+                player_constructor -- the constructor of the player object
+                optional_arguments -- a dictionary with optional arguments
+        :param disp_graphics: opens a GUI window if true
+        :param switch_sides: switches sides after each move (only visual)
+        :param record: record the match and save it in a file with the
+            current data as name
+        """
 
         self.display_screen = disp_graphics
         self.switch_sides = switch_sides
@@ -378,6 +403,13 @@ class Game:
             )
 
     def run(self):
+        """Run the draughts match.
+
+        Runs a match, then returns a tuple (history, winner)
+        history -- a board.History object with the history of the current match
+        winner -- the winner of the match, or -1 if the match was a draw
+        """
+
         self.keepgoing = True
 
         for p in self.players:
@@ -430,8 +462,7 @@ class Game:
             if not DraughtsRules.is_valid_move(
                     action.piece,
                     action.move,
-                    self.current_state,
-                    self.current_state.current_player
+                    self.current_state
             ):
                 raise Exception('Invalid move')
 
