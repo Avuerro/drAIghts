@@ -234,7 +234,7 @@ class DraughtsRules:
         """
 
         player_piece_positions = [p.pos for p in player_pieces
-                                  if p is not piece]
+                                  if p.pos != piece.pos]
         opponent_piece_positions = [p.pos for p in opponent_pieces]
         forward_directions = directions[2 * player_id:2 * player_id + 2]
 
