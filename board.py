@@ -168,6 +168,8 @@ class GameState:
             can otherwise have values NO_TIE_REQUEST or INVALID_TIE_REQUEST
     """
 
+    KING_ROW = (0, 9)
+
     def __init__(
             self,
             board=None,
@@ -240,7 +242,8 @@ class GameState:
 
         newstate.board.move_piece(piece.pos, move[-1])
 
-        if move[-1][1] == (0, 9)[newstate.board.get_piece_player(move[-1])]:
+        if move[-1][1] == \
+                GameState.KING_ROW[newstate.board.get_piece_player(move[-1])]:
             newstate.board.crown_piece(move[-1])
 
         return newstate
