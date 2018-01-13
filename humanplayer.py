@@ -72,10 +72,7 @@ class HumanPlayer(player.Player):
         button_selected = False
 
         player_pieces = currentstate.board.get_pieces(self.player_id)
-        all_possible_moves = DraughtsRules.get_all_possible_moves(
-            currentstate,
-            self.player_id
-        )
+        all_possible_moves = DraughtsRules.get_all_possible_moves(currentstate)
         highlighted_moves = None
         request_tie = False
 
