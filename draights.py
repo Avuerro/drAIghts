@@ -300,22 +300,22 @@ class Game:
         ]
 
         for i in range(2):
-            if players[i][1].__name__ == 'HumanPlayer':
-                self.players[i] = players[i][1](
+            if players[i].constructor.__name__ == 'HumanPlayer':
+                self.players[i] = players[i].constructor(
                     i,
                     eventmanager,
                     button_rects,
                     self.switch_sides,
                     board_size,
                     square_size,
-                    name=players[i][0],
-                    **players[i][2]
+                    name=players[i].name,
+                    **players[i].optional_args
                 )
             else:
-                self.players[i] = players[i][1](
+                self.players[i] = players[i].constructor(
                     i,
-                    name=players[i][0],
-                    **players[i][2]
+                    name=players[i].name,
+                    **players[i].optional_args
                 )
 
         self.scrollindex = 0
@@ -717,6 +717,18 @@ class Game:
                 self.display.render_to_screen()
 
 
+class PlayerConfig:
+    def __init__(self, name=None, constructor=humanplayer.HumanPlayer,
+                 optional_args=None):
+        self.name = name
+        self.constructor = constructor
+
+        if optional_args is None:
+            self.optional_args = {}
+        else:
+            self.optional_args = optional_args
+
+
 def parse_colors(args):
     clrs = {}
 
@@ -798,13 +810,16 @@ def parse_players(player_names, player_options, nographics):
         else:
             name, classname = None, player_names[index]
 
-        players.append(
-            (
-                name,
-                load_player(classname, nographics),
-                parse_playeropts(player_options[index])
-            )
-        )
+        players.append(PlayerConfig(name, load_player(classname, nographics),
+                                    parse_playeropts(player_options[index])))
+
+        # players.append(
+        #     (
+        #         name,
+        #         load_player(classname, nographics),
+        #         parse_playeropts(player_options[index])
+        #     )
+        # )
 
     return players
 
