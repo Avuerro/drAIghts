@@ -718,6 +718,9 @@ class Game:
 
 
 class PlayerConfig:
+    """A class used as initialization for the players argument of a Game object.
+    """
+
     def __init__(self, name=None, constructor=humanplayer.HumanPlayer,
                  optional_args=None):
         self.name = name
@@ -812,14 +815,6 @@ def parse_players(player_names, player_options, nographics):
 
         players.append(PlayerConfig(name, load_player(classname, nographics),
                                     parse_playeropts(player_options[index])))
-
-        # players.append(
-        #     (
-        #         name,
-        #         load_player(classname, nographics),
-        #         parse_playeropts(player_options[index])
-        #     )
-        # )
 
     return players
 
