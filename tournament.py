@@ -38,21 +38,32 @@ def play_match(players):
 
     print("Playing {0} - {1}".format(players[0][0].name, players[1][0].name))
 
-    t = time.clock()
+    t = time.process_time()
     game = draights.Game((players[0][0], players[1][0]), False)
     _, winner = game.run()
-    t = time.clock() - t
+    t = time.process_time() - t
 
-    print("{0} - {1}: {2}".format(players[0][0].name, players[1][0].name, t))
+    result = "draw"
+    if 0 <= winner <= 1:
+        result = players[winner][0].name
+
+    print("{0} - {1}: {2} in {3}".format(players[0][0].name, players[1][0].name,
+                                         result, t))
 
     return winner
 
 
-def play_roundrobin_tournament(players, win_points=2, draw_points=0.5,
-                               loss_points=0):
+def play_roundrobin_tournament(players, num_sets=1, win_points=1,
+                               draw_points=0.5, loss_points=0):
     """Simulate a double round robin tournament with all players.
 
+    The total number of matches played will be
+
+        len(players) * (len(players) - 1) * num_sets
+
     :param players: a list of PlayerConfig objects.
+    :param num_sets: the amount of times that players will play against each
+        other. (In sets of two: each player plays as white once)
     :param win_points: the amount of points that will be assigned for a win to
         the winning player.
     :param draw_points: the amount of points that will be assigned to both
@@ -61,11 +72,14 @@ def play_roundrobin_tournament(players, win_points=2, draw_points=0.5,
         in case of a loss.
     """
 
-    t = time.process_time()
+    t = time.time()
 
     players = [[player, 0] for player in players]
 
     matches = create_roundrobin_schedule(players[:])
+    matches = matches * num_sets
+    print("Playing {0} matches".format(sum(
+        match[0] is not None and match[1] is not None for match in matches)))
     with Pool(processes=cpu_count() - 2 or 1) as pool:
         results = pool.map(play_match, matches)
 
@@ -77,7 +91,7 @@ def play_roundrobin_tournament(players, win_points=2, draw_points=0.5,
             matches[i][0][1] += draw_points
             matches[i][1][1] += draw_points
 
-    t = time.process_time() - t
+    t = time.time() - t
     print("Tournament finished in {0} seconds".format(t))
 
     return players
