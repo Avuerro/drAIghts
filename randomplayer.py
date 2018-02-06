@@ -14,9 +14,9 @@ class RandomPlayer(player.Player):
     def get_action(self, current_state, history):
         possible_moves = DraughtsRules.get_all_possible_moves(current_state)
 
-        rand_movelist = random.choice(possible_moves)
+        rand_move = random.choice(possible_moves)
         return player.Move(
-            piece=rand_movelist[0],
-            move=random.choice(rand_movelist[1]),
+            piece=rand_move[0],
+            move=random.choice(rand_move[1]),
             request_tie=False
         )
