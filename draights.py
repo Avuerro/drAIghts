@@ -721,10 +721,14 @@ class PlayerConfig:
     """A class used as initialization for the players argument of a Game object.
     """
 
-    def __init__(self, name=None, constructor=humanplayer.HumanPlayer,
+    def __init__(self, name=None, constructor=None,
                  optional_args=None):
         self.name = name
-        self.constructor = constructor
+
+        if constructor is None:
+            self.constructor = humanplayer.HumanPlayer
+        else:
+            self.constructor = constructor
 
         if optional_args is None:
             self.optional_args = {}
@@ -839,24 +843,22 @@ def parse_command_args(command_args):
             replaydata = pickle.load(replayfile)
 
         args['players'] = [
-            (
-                replaydata['player1_name'],
-                replayplayer.ReplayPlayer,
-                {
+            PlayerConfig(
+                name=replaydata['player1_name'],
+                constructor=replayplayer.ReplayPlayer,
+                optional_args={
                     'movelist': [
-                        move
-                        for move in replaydata['movelist']
+                        move for move in replaydata['movelist']
                         if move.player_id == 0
                     ]
                 }
             ),
-            (
-                replaydata['player2_name'],
-                replayplayer.ReplayPlayer,
-                {
+            PlayerConfig(
+                name=replaydata['player2_name'],
+                constructor=replayplayer.ReplayPlayer,
+                optional_args={
                     'movelist': [
-                        move
-                        for move in replaydata['movelist']
+                        move for move in replaydata['movelist']
                         if move.player_id == 1
                     ]
                 }
