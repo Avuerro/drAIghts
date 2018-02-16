@@ -84,16 +84,6 @@ class BoardGrid:
 
         return pieces
 
-    def get_piece_by_pos(self, pos):
-        board_index = 15 * pos[1] + 3 * pos[0]
-
-        if self._pieces[board_index]:
-            square_offset = (board_index // 3 + 1) % 10
-            return Piece(
-                (2 * pos[0] + (1 <= square_offset <= 5), pos[1]),
-                self._pieces[board_index + 1]
-            )
-
     def remove_piece(self, pos):
         board_index = self._get_board_index(pos)
 
